@@ -1,4 +1,4 @@
-module com.example.javafx_final_project {
+module com.example.jobnotes {
 	requires javafx.controls;
 	requires javafx.fxml;
 
