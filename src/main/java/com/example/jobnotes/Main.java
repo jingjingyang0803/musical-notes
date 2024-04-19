@@ -42,7 +42,10 @@ public class Main extends Application {
 
     private Job currentJob= new Job("test") ;  // Job instance
 
-    // Create GridPane and its components
+    // Create ListView on left
+    private ListView<Job> jobsListView;
+
+    // Create GridPane and its components on right top
     private GridPane grid = new GridPane();
     private TextField jobNameField = new TextField();
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
@@ -62,30 +65,28 @@ public class Main extends Application {
     private Label totaltimeLabel = new Label("Total Note Time: 0 ms");
     private Canvas canvas = new Canvas(300, 50);
 
-    // Create ListView on left and TableView on right bottom
-    ListView<Job> leftSection;
-    TableView<Note> table;
+    // Create TableView on right bottom
+    private ObservableList<Note> noteList = FXCollections.observableArrayList();
+    private TableView<Note> table;
 
     @Override
     public void start(Stage primaryStage) {
         //
         // Left Section
         //
-        ObservableList<Job> jobs = getJobs();
-        leftSection = getJobListView(jobs);
+        jobsListView = getJobListView();
 
         //
         // Right Top Section
         //
-        setupUIComponents();// // GridPane configuration
+        setupJobComponents();// // GridPane configuration
         updateUIWithJob(currentJob);// Initialize UI with default job
         setupListeners(); // Add listeners for job changes, slider movements, etc.
 
         //
         // Right Bottom Section
         //
-        List<Note> notes = getNotes();
-        table = getNoteTableView(notes);
+        table = getNoteTableView();
 
         setupStage(primaryStage);// Final stage setup
     }
@@ -109,10 +110,8 @@ public class Main extends Application {
         return jobs;
     }
 
-    private ListView<Job> getJobListView(ObservableList<Job> jobs) {
-        //
-        // Left Section
-        //
+    private ListView<Job> getJobListView() {
+        ObservableList<Job> jobs= getJobs();
         // Create a ListView for left section using a list of Jobs
         ListView<Job>  leftSection = new ListView<>(jobs);
 
@@ -203,7 +202,7 @@ public class Main extends Application {
         grid.add(canvas, 0, 8, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
-    private void setupUIComponents() {
+    private void setupJobComponents() {
         grid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
         grid.setHgap(10);  // Set horizontal gap between grid cells
         grid.setVgap(15);  // Set vertical gap between grid cells
@@ -363,6 +362,8 @@ public class Main extends Application {
 
             updateCanvas(); // update the canvas
         });
+
+//        refreshNotesTable();// update table of notes whenever job details change
     }
 
     private List<Note> getNotes() {
@@ -413,15 +414,15 @@ public class Main extends Application {
         return notes;
     }
 
-    private TableView<Note> getNoteTableView(List<Note> notes) {
+    private TableView<Note> getNoteTableView() {
         // Convert the ArrayList of Note objects to an ObservableList
-        ObservableList<Note> noteList = FXCollections.observableArrayList(notes);
+        noteList = FXCollections.observableArrayList(getNotes());
 
         //
         // table
         //
         // Create a TableView object to display the notes
-        TableView<Note> table = new TableView<>();
+        table = new TableView<>(noteList);
 
         // This TableView should have four TableColumn objects
         TableColumn<Note, Integer> column1 = new TableColumn<>("Note");
@@ -439,13 +440,15 @@ public class Main extends Application {
         table.setItems(noteList);
 
         // Add the TableColumn objects to the TableView
-        table.getColumns().add(column1);
-        table.getColumns().add(column2);
-        table.getColumns().add(column3);
-        table.getColumns().add(column4);
+        table.getColumns().addAll(column1, column2, column3, column4);
         return table;
     }
 
+    private void refreshNotesTable() {
+        List<Note> notes = getNotes(); // Assuming getNotes uses currentJob to generate the list
+        noteList.setAll(notes); // Replace the items in the TableView with the new list
+        table.refresh(); // Refresh the TableView to display the new items
+    }
     private void setupStage(Stage primaryStage) {
         //
         // Right SplitPane
@@ -461,7 +464,7 @@ public class Main extends Application {
         // Create a SplitPane for the whole section
         SplitPane splitPane = new SplitPane();
         // Add left section and right section to the SplitPane
-        splitPane.getItems().addAll(leftSection, rightSection);
+        splitPane.getItems().addAll(jobsListView, rightSection);
 
         //
         // Scene
