@@ -48,7 +48,7 @@ public class Main extends Application {
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
     private Spinner<Integer> toNoteSpinner = new Spinner<>(0, 127, 0);
     private ToggleGroup group = new ToggleGroup();
-
+    HBox hbox = new HBox();
     // Labels for Sliders
     private Label durationLabel = new Label("Duration: 0 ms");
     private Label decayLabel = new Label("Decay: 0 ms");
@@ -123,35 +123,42 @@ public class Main extends Application {
                 (observable, oldValue, newValue) -> {
                     int selectedIndex = leftSection.getSelectionModel().getSelectedIndex();
                     currentJob = jobs.get(selectedIndex);
+                    updateUIWithJob(currentJob);
                 }
         );
         return leftSection;
     }
 
     private void setupIntervalToggleGroup() {
-        List<Job.Interval> intervals = Arrays.asList(Job.Interval.ONE, Job.Interval.THREE, Job.Interval.SIX, Job.Interval.TWELVE);
-        HBox hbox = new HBox();
-        hbox.setSpacing(10); // Sets the space to 10
+        updateIntervalToggleGroup(); // Call this method to create/update radio buttons
 
+        TitledPane tp = new TitledPane("Interval", hbox);
+        tp.setCollapsible(true);
+        grid.add(tp, 0, 4, 2, 1);  // Adds the TitledPane to the grid.
+    }
+
+    public void updateIntervalToggleGroup() {
+        hbox.getChildren().clear(); // Clear existing radio buttons
+
+        List<Job.Interval> intervals = Arrays.asList(Job.Interval.ONE, Job.Interval.THREE, Job.Interval.SIX, Job.Interval.TWELVE);
         for (Job.Interval interval : intervals) {
             RadioButton button = new RadioButton(interval.name());
             button.setToggleGroup(group);
 
-            // Check if interval is default value
+            // Check if interval is the current job's interval
             if (interval == currentJob.getInterval()) {
-                // If so, set this radio button as selected
                 button.setSelected(true);
             }
 
+            // Set an action on the radio button to update current job's interval
             button.setOnAction(event -> {
                 currentJob.setInterval(interval);
+                // If needed, add code here to update other parts of the UI
+                // that depend on the interval of the current job.
             });
-            hbox.getChildren().add(button);
-        }
 
-        TitledPane tp = new TitledPane("Interval", hbox);
-        tp.setCollapsible(true);
-        grid.add(tp, 0, 4, 2, 1);  // Adds the TitledPane to the grid at column 0, row 4, and makes it span across 2 columns and 1 row.
+            hbox.getChildren().add(button); // Add the button to the HBox
+        }
     }
 
     private void setupSliders() {
@@ -290,6 +297,8 @@ public class Main extends Application {
         jobNameField.setText(job.getName());
         fromNoteSpinner.getValueFactory().setValue(job.getFromNote());
         toNoteSpinner.getValueFactory().setValue(job.getToNote());
+
+        updateIntervalToggleGroup(); // update the radio buttons based on the current job
 
         durationLabel.setText("Duration: " + currentJob.getNoteDuration() + " ms");
         decayLabel.setText("Decay: " + currentJob.getNoteDecay() + " ms");
