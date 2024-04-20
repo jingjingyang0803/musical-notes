@@ -2,7 +2,9 @@ package com.example.jobnotes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -58,10 +60,23 @@ public class Main extends Application {
     private Label totaltimeLabel = new Label("Total Note Time: 0 ms");
     private Canvas canvas = new Canvas(300, 50);
 
-    private Spinner<Integer> singularVelocitySpinner = new Spinner<>(1, 127, 64);
+
+    // Velocity selection setup
+    private ToggleGroup velocityGroup = new ToggleGroup();
+    private RadioButton singularVelocityButton = new RadioButton("Singular Velocity");
+    private RadioButton specificVelocitiesButton = new RadioButton("Specific Velocities");
+    private RadioButton distributedVelocitiesButton = new RadioButton("Distributed Velocities");
+
+    private Label singularVelocityLabel = new Label("Velocity:");
+    private Label specificVelocitiesLabel = new Label("Velocities (comma-separated):");
+    private Label firstVelocityLabel = new Label("First Velocity:");
+    private Label lastVelocityLabel = new Label("Last Velocity:");
+    private Label countLabel = new Label("Count:");
+    // Velocity control Components
+    private Spinner<Integer> singularVelocitySpinner = new Spinner<>(1, 127, 80);
     private TextField specificVelocitiesField = new TextField();
-    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 64);
-    private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 64);
+    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
+    private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
     private Spinner<Integer> countSpinner = new Spinner<>(1, 10, 4);  // Example range for count
 
     // Create TableView on right bottom
@@ -91,11 +106,11 @@ public class Main extends Application {
 
         setupListeners(); // Add listeners for job changes, slider movements, etc.
 
-        setupStage(primaryStage);// Final stage setup option 1: top, right bottom, left bottom
-//        setupStage2(primaryStage);// Final stage setup option 2: left, top right, bottom right
+        setupStageTopBottom(primaryStage);// Final stage setup option 1: top, right bottom, left bottom
+//        setupStageLeftRight(primaryStage);// Final stage setup option 2: left, top right, bottom right
     }
 
-    private ObservableList<Job> getJoblist() {
+    private ObservableList<Job> getJobList() {
         //
         // Customize Job List
         //
@@ -113,7 +128,7 @@ public class Main extends Application {
 
     //TODO: refresh jobs list view and table view for velocity change as well
     private ListView<Job> getJobListView() {
-        ObservableList<Job> jobs= getJoblist();
+        ObservableList<Job> jobs= getJobList();
         // Create a ListView for left section using a list of Jobs
         jobsListView = new ListView<>(jobs);
 
@@ -142,7 +157,7 @@ public class Main extends Application {
         // Trigger an update to ListView to reflect changes
         jobsListView.setItems(null);// Clear items to refresh
 
-        ObservableList<Job> jobs= getJoblist(); // getJobs() fetches the updated list
+        ObservableList<Job> jobs= getJobList(); // getJobs() fetches the updated list
         jobsListView.setItems(jobs);// Set new items
 
         // Optionally, if jobs list is not recreated each time
@@ -226,41 +241,57 @@ public class Main extends Application {
     }
 
     private void setupVelocityComponents() {
-
         GridPane velocityGrid = new GridPane();
-        velocityGrid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
-        velocityGrid.setHgap(10);  // Set horizontal gap between grid cells
-        velocityGrid.setVgap(15);  // Set vertical gap between grid cells
-        velocityGrid.setPadding(new Insets(25));  // Set the padding for the GridPane to 25 units on all sides
+        velocityGrid.setAlignment(Pos.TOP_CENTER);
+        velocityGrid.setHgap(10);
+        velocityGrid.setVgap(15);
+        velocityGrid.setPadding(new Insets(25));
 
-        // Singular velocity
-        Label singularVelocityLabel=new Label("Singular Velocity:");
-        velocityGrid.add(singularVelocityLabel, 0, 0);
-        velocityGrid.add(singularVelocitySpinner, 1, 0);
+        singularVelocityButton.setToggleGroup(velocityGroup);
+        specificVelocitiesButton.setToggleGroup(velocityGroup);
+        distributedVelocitiesButton.setToggleGroup(velocityGroup);
 
-        // Specific velocities
-        Label specificVelocitiesLabel=new Label("Specific Velocities:");
-        velocityGrid.add(specificVelocitiesLabel, 0, 1);
-        velocityGrid.add(specificVelocitiesField, 1, 1);
+        // Singular Velocity Components
+        velocityGrid.add(singularVelocityButton, 0, 0);
+        velocityGrid.add(singularVelocityLabel, 0, 1);
+        velocityGrid.add(singularVelocitySpinner, 1, 1);
 
-        // Distributed velocities
-        Label firstVelocityLabel=new Label("First Velocity:");
-        velocityGrid.add(firstVelocityLabel, 0, 2);
-        velocityGrid.add(firstVelocitySpinner, 1, 2);
+        // Specific Velocities Components
+        velocityGrid.add(specificVelocitiesButton, 0, 2);
+        velocityGrid.add(specificVelocitiesLabel, 0, 3);
+        velocityGrid.add(specificVelocitiesField, 1, 3);
 
-        Label lastVelocityLabel=new Label("Last Velocity:");
-        velocityGrid.add(lastVelocityLabel, 0, 3);
-        velocityGrid.add(lastVelocitySpinner, 1, 3);
+        // Distributed Velocities Components
+        velocityGrid.add(distributedVelocitiesButton, 0, 4);
+        velocityGrid.add(firstVelocityLabel, 0, 5);
+        velocityGrid.add(firstVelocitySpinner, 1, 5);
+        velocityGrid.add(lastVelocityLabel, 0, 6);
+        velocityGrid.add(lastVelocitySpinner, 1, 6);
+        velocityGrid.add(countLabel, 0, 7);
+        velocityGrid.add(countSpinner, 1, 7);
 
-        Label countLabel=new Label("Count:");
-        velocityGrid.add(countLabel, 0, 4);
-        velocityGrid.add(countSpinner, 1, 4);
+        // Initial visibility settings
+        updateVelocityComponentsVisibility();
 
-        
         TitledPane velocityTP = new TitledPane("Note Velocities", velocityGrid);
         velocityTP.setCollapsible(true);
-        velocityTP.setExpanded(false);// set this TitledPane to be collapsed by default when your application starts
+        velocityTP.setExpanded(false);
         grid.add(velocityTP, 0, 10, 2, 1);
+    }
+
+    private void updateVelocityComponentsVisibility() {
+        singularVelocityLabel.setVisible(singularVelocityButton.isSelected());
+        singularVelocitySpinner.setVisible(singularVelocityButton.isSelected());
+
+        specificVelocitiesLabel.setVisible(specificVelocitiesButton.isSelected());
+        specificVelocitiesField.setVisible(specificVelocitiesButton.isSelected());
+
+        firstVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
+        lastVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
+        countLabel.setVisible(distributedVelocitiesButton.isSelected());
+        firstVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
+        lastVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
+        countSpinner.setVisible(distributedVelocitiesButton.isSelected());
     }
 
     //TODO: add three ways to set velocity, make them clear, and set constraints like range
@@ -572,9 +603,57 @@ public class Main extends Application {
             refreshNotesTable();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
+
+        // Add listeners to toggle group to update UI based on selection
+        velocityGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
+            updateVelocityComponentsVisibility();
+        });
+
+        // Listener for singular velocity
+        singularVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            currentJob.setVelocity(newVal);
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTable();// update table of notes whenever job details change
+        });
+
+        // Listener for specific velocities
+        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
+            List<Integer> velocities = parseVelocities(newVal);
+            currentJob.setSpecificVelocities(velocities);
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTable();// update table of notes whenever job details change
+        });
+
+        // Listener for distributed velocities
+        firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // update after lastVelocity and countSpinner also have valid values
+        });
+        lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // Same as above
+        });
+        countSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            currentJob.setDistributedVelocities(
+                    firstVelocitySpinner.getValue(),
+                    lastVelocitySpinner.getValue(),
+                    newVal
+            );
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTable();// update table of notes whenever job details change
+        });
     }
 
-    private void setupStage2(Stage primaryStage) {
+    // Helper method to parse velocities from the text field
+    private List<Integer> parseVelocities(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(input.split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+    }
+
+    private void setupStageLeftRight(Stage primaryStage) {
         //
         // Right SplitPane
         //
@@ -602,7 +681,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    private void setupStage(Stage primaryStage) {
+    private void setupStageTopBottom(Stage primaryStage) {
 
         //
         // Bottom SplitPane
