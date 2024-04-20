@@ -125,8 +125,6 @@ public class Main extends Application {
         //
         jobsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    currentJob.setName(jobNameField.getText()); // update job name
-
                     int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
                     currentJob = jobs.get(selectedIndex);// set current job as selected
                     updateUIWithJob(currentJob);// update UI for selected job
@@ -417,6 +415,20 @@ public class Main extends Application {
     }
 
     private void setupListeners() {
+        // Add a listener to the 'jobNameField' text property
+        jobNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Focus lost
+            String newName = jobNameField.getText().trim();  // Trim leading and trailing whitespaces
+
+            // Check if job name is not empty and not exceeding 20 characters
+            if (newName.length() > 0 && newName.length() <= 20) {
+                currentJob.setName(newName);  // Set the new job name
+                refreshJobListView();// update list of jobs whenever job details change
+            } else {
+                System.out.println("Invalid Job Name. It should be 1-20 characters long.");  // Print error if invalid
+            }
+        });
+
         // Add a listener to the 'fromNoteSpinner' value property
         fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // update job
