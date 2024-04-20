@@ -51,7 +51,7 @@ public class Main extends Application {
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
     private Spinner<Integer> toNoteSpinner = new Spinner<>(0, 127, 0);
     private ToggleGroup group = new ToggleGroup();
-    HBox hbox = new HBox();
+    private HBox hbox = new HBox(10);// Spacing of 10 pixels between each radio button
     // Labels for Sliders
     private Label durationLabel = new Label("Duration: 0 ms");
     private Label decayLabel = new Label("Decay: 0 ms");
@@ -112,6 +112,7 @@ public class Main extends Application {
         return jobs;
     }
 
+    //TODO: refresh jobs list view simultaneously when customizing job, instead of at new selection
     private ListView<Job> getJobListView() {
         ObservableList<Job> jobs= getJobs();
         // Create a ListView for left section using a list of Jobs
@@ -244,6 +245,7 @@ public class Main extends Application {
         setupCheckBoxAndCanvas();
     }
 
+    // TODO: use gradient color to show decay
     private void updateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -362,6 +364,7 @@ public class Main extends Application {
         return notes;
     }
 
+    //TODO: align numbers to right
     private TableView<Note> getNoteTableView() {
         // Convert the ArrayList of Note objects to an ObservableList
         noteList = FXCollections.observableArrayList(getNotes());
@@ -458,6 +461,7 @@ public class Main extends Application {
         });
     }
 
+    //TODO: change layout to top, left bottom and right bottom
     private void setupStage(Stage primaryStage) {
         //
         // Right SplitPane
