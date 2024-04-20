@@ -14,18 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -266,7 +255,6 @@ public class Main extends Application {
         setupCheckBoxAndCanvas();
     }
 
-    // TODO: use gradient color to show decay
     private void updateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -399,6 +387,23 @@ public class Main extends Application {
         return notes;
     }
 
+    // Method to set right alignment for table column cells
+    private void setRightAlignedTableColumn(TableColumn<Note, Integer> column) {
+        column.setCellFactory(tc -> new TableCell<Note, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.toString());
+                    setAlignment(Pos.CENTER_RIGHT); // Right align the text
+                }
+            }
+        });
+    }
+
+
     //TODO: align numbers to right
     private TableView<Note> getNoteTableView() {
         // Convert the ArrayList of Note objects to an ObservableList
@@ -421,6 +426,12 @@ public class Main extends Application {
         column2.setCellValueFactory(new PropertyValueFactory<>("velocity"));
         column3.setCellValueFactory(new PropertyValueFactory<>("startTime"));
         column4.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+
+        // Apply right alignment to the columns
+        setRightAlignedTableColumn(column1);
+        setRightAlignedTableColumn(column2);
+        setRightAlignedTableColumn(column3);
+        setRightAlignedTableColumn(column4);
 
         // Set the ObservableList of Note objects as the data source for the TableView
         table.setItems(noteList);
