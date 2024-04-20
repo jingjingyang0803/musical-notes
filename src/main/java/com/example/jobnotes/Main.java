@@ -113,19 +113,19 @@ public class Main extends Application {
     private ListView<Job> getJobListView() {
         ObservableList<Job> jobs= getJobs();
         // Create a ListView for left section using a list of Jobs
-        ListView<Job>  leftSection = new ListView<>(jobs);
+        jobsListView = new ListView<>(jobs);
 
         //
         // Current job
         //
-        leftSection.getSelectionModel().selectedItemProperty().addListener(
+        jobsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    int selectedIndex = leftSection.getSelectionModel().getSelectedIndex();
+                    int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
                     currentJob = jobs.get(selectedIndex);
                     updateUIWithJob(currentJob);
                 }
         );
-        return leftSection;
+        return jobsListView;
     }
 
     private void setupIntervalToggleGroup() {
