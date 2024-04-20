@@ -58,6 +58,12 @@ public class Main extends Application {
     private Label totaltimeLabel = new Label("Total Note Time: 0 ms");
     private Canvas canvas = new Canvas(300, 50);
 
+    private Spinner<Integer> singularVelocitySpinner = new Spinner<>(1, 127, 64);
+    private TextField specificVelocitiesField = new TextField();
+    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 64);
+    private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 64);
+    private Spinner<Integer> countSpinner = new Spinner<>(1, 10, 4);  // Example range for count
+
     // Create TableView on right bottom
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
     private TableView<Note> table;
@@ -146,9 +152,9 @@ public class Main extends Application {
     private void setupIntervalToggleGroup() {
         updateIntervalToggleGroup(); // Call this method to create/update radio buttons
 
-        TitledPane tp = new TitledPane("Interval", hbox);
-        tp.setCollapsible(true);
-        grid.add(tp, 0, 5, 2, 1);  // Adds the TitledPane to the grid.
+        TitledPane intervalTP = new TitledPane("Interval", hbox);
+        intervalTP.setCollapsible(true);
+        grid.add(intervalTP, 0, 5, 2, 1);  // Adds the TitledPane to the grid.
     }
 
     public void updateIntervalToggleGroup() {
@@ -195,9 +201,10 @@ public class Main extends Application {
         vbox.setSpacing(10); // Sets the space to 10
         vbox.getChildren().addAll(durationLabel, durationSlider, decayLabel, decaySlider, gapLabel, gapSlider);
 
-        TitledPane tp2 = new TitledPane("Note Times", vbox);
-        tp2.setCollapsible(true);
-        grid.add(tp2, 0, 6, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
+        TitledPane noteTimesTP = new TitledPane("Note Times", vbox);
+        noteTimesTP.setCollapsible(true);
+        noteTimesTP.setExpanded(false);// set this TitledPane to be collapsed by default when your application starts
+        grid.add(noteTimesTP, 0, 6, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
     }
 
     private void setupCheckBoxAndCanvas() {
@@ -218,7 +225,46 @@ public class Main extends Application {
         grid.add(canvas, 0, 9, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
-    //TODO: add three ways to set velocity
+    private void setupVelocityComponents() {
+
+        GridPane velocityGrid = new GridPane();
+        velocityGrid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
+        velocityGrid.setHgap(10);  // Set horizontal gap between grid cells
+        velocityGrid.setVgap(15);  // Set vertical gap between grid cells
+        velocityGrid.setPadding(new Insets(25));  // Set the padding for the GridPane to 25 units on all sides
+
+        // Singular velocity
+        Label singularVelocityLabel=new Label("Singular Velocity:");
+        velocityGrid.add(singularVelocityLabel, 0, 0);
+        velocityGrid.add(singularVelocitySpinner, 1, 0);
+
+        // Specific velocities
+        Label specificVelocitiesLabel=new Label("Specific Velocities:");
+        velocityGrid.add(specificVelocitiesLabel, 0, 1);
+        velocityGrid.add(specificVelocitiesField, 1, 1);
+
+        // Distributed velocities
+        Label firstVelocityLabel=new Label("First Velocity:");
+        velocityGrid.add(firstVelocityLabel, 0, 2);
+        velocityGrid.add(firstVelocitySpinner, 1, 2);
+
+        Label lastVelocityLabel=new Label("Last Velocity:");
+        velocityGrid.add(lastVelocityLabel, 0, 3);
+        velocityGrid.add(lastVelocitySpinner, 1, 3);
+
+        Label countLabel=new Label("Count:");
+        velocityGrid.add(countLabel, 0, 4);
+        velocityGrid.add(countSpinner, 1, 4);
+
+        
+        TitledPane velocityTP = new TitledPane("Note Velocities", velocityGrid);
+        velocityTP.setCollapsible(true);
+        velocityTP.setExpanded(false);// set this TitledPane to be collapsed by default when your application starts
+        grid.add(velocityTP, 0, 10, 2, 1);
+    }
+
+    //TODO: add three ways to set velocity, make them clear, and set constraints like range
+    //TODO: add listeners and update list and table
     private void setupJobComponents() {
         grid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
         grid.setHgap(10);  // Set horizontal gap between grid cells
@@ -252,10 +298,10 @@ public class Main extends Application {
         grid.add(fromNoteSpinner, 1, 3);
         grid.add(toNoteSpinner, 1, 4);
 
-
         setupIntervalToggleGroup();// Setup RadioButtons for intervals
         setupSliders();
         setupCheckBoxAndCanvas();
+        setupVelocityComponents();
     }
 
     private void updateCanvas() {
@@ -406,8 +452,6 @@ public class Main extends Application {
         });
     }
 
-
-    //TODO: align numbers to right
     private TableView<Note> getNoteTableView() {
         // Convert the ArrayList of Note objects to an ObservableList
         noteList = FXCollections.observableArrayList(getNotes());
@@ -581,7 +625,7 @@ public class Main extends Application {
         // Scene
         //
         // Create a Scene
-        Scene scene = new Scene(topBottomSection, 800, 850);
+        Scene scene = new Scene(topBottomSection, 800, 700);
         // Set scene and stage
         primaryStage.setScene(scene);
         primaryStage.setTitle("JavaFX Split View");
