@@ -81,12 +81,14 @@ public class Main extends Application {
         //
         setupJobComponents();// // GridPane configuration
         updateUIWithJob(currentJob);// Initialize UI with default job
-        setupListeners(); // Add listeners for job changes, slider movements, etc.
 
         //
         // Right Bottom Section
         //
         table = getNoteTableView();
+
+
+        setupListeners(); // Add listeners for job changes, slider movements, etc.
 
         setupStage(primaryStage);// Final stage setup
     }
@@ -154,8 +156,8 @@ public class Main extends Application {
             // Set an action on the radio button to update current job's interval
             button.setOnAction(event -> {
                 currentJob.setInterval(interval);
-                // If needed, add code here to update other parts of the UI
-                // that depend on the interval of the current job.
+
+                refreshNotesTable();// update table of notes whenever job details change
             });
 
             hbox.getChildren().add(button); // Add the button to the HBox
@@ -312,62 +314,6 @@ public class Main extends Application {
         updateCanvas();
     }
 
-    private void setupListeners() {
-        // Add a listener to the 'fromNoteSpinner' value property
-        fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            // update job
-            currentJob.setFromNote(newValue.intValue());
-        });
-
-        // Add a listener to the 'toNoteSpinner' value property
-        toNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            // update job
-            currentJob.setToNote(newValue.intValue());
-        });
-
-        // Add listeners to the sliders value property
-        durationSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            durationLabel.setText("Duration: " + newValue.intValue() + " ms");
-            // update job
-            currentJob.setNoteDuration(newValue.intValue());
-            updateCanvas(); // update the canvas
-        });
-        decaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            decayLabel.setText("Decay: " + newValue.intValue() + " ms");
-            // update job
-            currentJob.setNoteDecay(newValue.intValue());
-            updateCanvas(); // update the canvas
-        });
-        gapSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            gapLabel.setText("Gap: " + newValue.intValue() + " ms");
-            // update job
-            currentJob.setNoteGap(newValue.intValue());
-            updateCanvas(); // update the canvas
-        });
-
-        // Add a listener to the checkBox value property
-        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            durationSlider.setDisable(newValue);
-            decaySlider.setDisable(newValue);
-            gapSlider.setDisable(newValue);
-
-            if (newValue) {
-                currentJob.setNoteDuration(1000);// default duration 1000ms
-                currentJob.setNoteDecay(500);// default decay 500ms
-                currentJob.setNoteGap(100);// default gap 100ms
-            } else {
-                // Use the latest values if newValue is false
-                currentJob.setNoteDuration((int) durationSlider.getValue());
-                currentJob.setNoteDecay((int) decaySlider.getValue());
-                currentJob.setNoteGap((int) gapSlider.getValue());
-            }
-
-            updateCanvas(); // update the canvas
-        });
-
-//        refreshNotesTable();// update table of notes whenever job details change
-    }
-
     private List<Note> getNotes() {
         // Retrieve the list of note numbers from the job
         List<Integer> noteNumbers = currentJob.getNotes();
@@ -447,9 +393,69 @@ public class Main extends Application {
     }
 
     private void refreshNotesTable() {
-        List<Note> notes = getNotes(); // Assuming getNotes uses currentJob to generate the list
+        List<Note> notes = getNotes(); // Generate the list uses currentJob
         noteList.setAll(notes); // Replace the items in the TableView with the new list
         table.refresh(); // Refresh the TableView to display the new items
+    }
+
+    private void setupListeners() {
+        // Add a listener to the 'fromNoteSpinner' value property
+        fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // update job
+            currentJob.setFromNote(newValue.intValue());
+            refreshNotesTable();// update table of notes whenever job details change
+        });
+
+        // Add a listener to the 'toNoteSpinner' value property
+        toNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // update job
+            currentJob.setToNote(newValue.intValue());
+            refreshNotesTable();// update table of notes whenever job details change
+        });
+
+        // Add listeners to the sliders value property
+        durationSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            durationLabel.setText("Duration: " + newValue.intValue() + " ms");
+            // update job
+            currentJob.setNoteDuration(newValue.intValue());
+            refreshNotesTable();// update table of notes whenever job details change
+            updateCanvas(); // update the canvas
+        });
+        decaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            decayLabel.setText("Decay: " + newValue.intValue() + " ms");
+            // update job
+            currentJob.setNoteDecay(newValue.intValue());
+            refreshNotesTable();// update table of notes whenever job details change
+            updateCanvas(); // update the canvas
+        });
+        gapSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            gapLabel.setText("Gap: " + newValue.intValue() + " ms");
+            // update job
+            currentJob.setNoteGap(newValue.intValue());
+            refreshNotesTable();// update table of notes whenever job details change
+            updateCanvas(); // update the canvas
+        });
+
+        // Add a listener to the checkBox value property
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            durationSlider.setDisable(newValue);
+            decaySlider.setDisable(newValue);
+            gapSlider.setDisable(newValue);
+
+            if (newValue) {
+                currentJob.setNoteDuration(1000);// default duration 1000ms
+                currentJob.setNoteDecay(500);// default decay 500ms
+                currentJob.setNoteGap(100);// default gap 100ms
+            } else {
+                // Use the latest values if newValue is false
+                currentJob.setNoteDuration((int) durationSlider.getValue());
+                currentJob.setNoteDecay((int) decaySlider.getValue());
+                currentJob.setNoteGap((int) gapSlider.getValue());
+            }
+
+            refreshNotesTable();// update table of notes whenever job details change
+            updateCanvas(); // update the canvas
+        });
     }
 
     private void setupStage(Stage primaryStage) {
