@@ -129,9 +129,11 @@ public class Main extends Application {
 
         jobsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                    int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
-                    currentJob = jobs.get(selectedIndex);// set current job as selected
-                    updateUIWithJob(currentJob);// update UI for selected job
+                    if (newValue != null) { // Check if the new value is not null
+                        int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
+                        currentJob = newValue; // Use newValue directly instead of getting it from the list
+                        updateUIWithJob(currentJob); // Update UI for selected job
+                    }
                 }
         );
 
@@ -140,10 +142,10 @@ public class Main extends Application {
 
     private void refreshJobListView() {
         // Trigger an update to ListView to reflect changes
-        jobsListView.setItems(null);
+        jobsListView.setItems(null);// Clear items to refresh
 
         ObservableList<Job> jobs= getJoblist(); // getJobs() fetches the updated list
-        jobsListView.setItems(jobs);
+        jobsListView.setItems(jobs);// Set new items
 
         // Optionally, if jobs list is not recreated each time
         jobsListView.refresh();
@@ -500,7 +502,7 @@ public class Main extends Application {
     }
 
     //TODO: change layout to top, left bottom and right bottom
-    private void setupStage(Stage primaryStage) {
+    private void setupStage2(Stage primaryStage) {
         //
         // Right SplitPane
         //
@@ -522,6 +524,36 @@ public class Main extends Application {
         //
         // Create a Scene
         Scene scene = new Scene(splitPane, 800, 500);
+        // Set scene and stage
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("JavaFX Split View");
+        primaryStage.show();
+    }
+
+    private void setupStage(Stage primaryStage) {
+
+        //
+        // Bottom SplitPane
+        //
+        // Create a SplitPane for the bottom section
+        SplitPane bottomSection = new SplitPane();
+        // Add left section and right section to the SplitPane
+        bottomSection.getItems().addAll(grid, table);
+        bottomSection.setDividerPositions(0.6);// adjust the size of each section to proper
+        //
+        // Whole SplitPane
+        //
+        // Create a SplitPane for whole section
+        SplitPane topBottomSection = new SplitPane();
+        topBottomSection.setOrientation(Orientation.VERTICAL);
+        topBottomSection.getItems().addAll(jobsListView, bottomSection);
+        topBottomSection.setDividerPositions(0.15);// adjust the size of each section to proper
+
+        //
+        // Scene
+        //
+        // Create a Scene
+        Scene scene = new Scene(topBottomSection, 800, 850);
         // Set scene and stage
         primaryStage.setScene(scene);
         primaryStage.setTitle("JavaFX Split View");
