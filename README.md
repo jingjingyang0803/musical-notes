@@ -16,57 +16,69 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 
 - Java 17 or higher
+- JavaFX SDK 17 or higher
 - Maven
-- JavaFX
 
-### Installation
+  - **Set Up JavaFX**: Ensure you have the JavaFX SDK downloaded and set up on your machine. Download it from OpenJFX.
+  - **Configure JavaFX Path**: Set the **`PATH_TO_FX`** environment variable to the lib directory of your JavaFX SDK. For example:
 
-Follow these steps to install and run the application:
+    ```bash
+    export PATH_TO_FX="/path/to/javafx-sdk/lib"
+    ```
 
-1. **Clone the Repository**
+## Installation
 
-   - Open your terminal.
-   - Clone the repository by running:
+### **Option 1: Using the Command Line**
 
-     ```bash
-     git clone https://github.com/jingjingyang0803/musical-notes.git
-     ```
+### **Step 1: Compile the Application**
 
-   - Navigate to the project folder:
+Navigate to your project's root directory, then compile the source files using the following commands:
 
-     ```bash
-     cd musical-job-notes
-     ```
+```bash
+cd musical-notes/src
+javac --module-path $PATH_TO_FX --add-modules javafx.controls -d main/java main/java/com/example/jobnotes/*.java
+```
 
-2. **Build the Project**
+### **Step 2: Run the Application**
 
-   - **Ensure Maven is Installed**: Before building the project, check if Maven is installed on your system by running **`mvn -v`** in your terminal. If Maven is not installed, download and install it from the [Apache Maven official site](https://maven.apache.org/download.cgi).
-   - Build the project using Maven by executing:
+After compilation, run your application with:
 
-     ```bash
-     mvn clean install
-     ```
+```bash
+java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -cp main/java com.example.jobnotes.Main
+```
 
-3. **Run the Application**
+### **Option 2: Using IntelliJ IDEA**
 
-   - **Set Up JavaFX**: Ensure you have the JavaFX SDK downloaded and set up on your machine. Download it from OpenJFX.
-   - **Configure JavaFX Path**: Set the **`PATH_TO_FX`** environment variable to the lib directory of your JavaFX SDK. For example:
+### **Step 1: Import the Project**
 
-     ```bash
-     export PATH_TO_FX="/path/to/javafx-sdk/lib"
-     ```
+1. Open IntelliJ IDEA.
+2. Choose **File > Open** and select the project directory.
+3. IntelliJ IDEA will automatically detect the Maven configuration and set up everything for you.
 
-   - Navigate to the **`target`** directory where the JAR file is located:
+### **Step 2: Run the Application**
 
-     ```bash
-     cd target
-     ```
+1. Right-click on the **`Main.java`** file in the project explorer.
+2. Select **Run 'Main.main()'** to start the application.
 
-   - Run the application using the following command:
+### **Option 3: Using Maven to Build and Run**
 
-     ```bash
-     java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar musical-job-notes-1.0-SNAPSHOT.jar
-     ```
+### **Step 1: Build the Project**
+
+Run the following command in your project directory to build the project:
+
+```bash
+mvn clean install
+```
+
+- **Ensure Maven is Installed**: Before building the project, check if Maven is installed on your system by running **`mvn -v`** in your terminal. If Maven is not installed, download and install it from the [Apache Maven official site](https://maven.apache.org/download.cgi).
+
+### **Step 2: Run the JAR**
+
+After building the project, a JAR file will be generated in the **`target`** directory. Run the application using:
+
+```bash
+java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar target/musical-notes-1.0-SNAPSHOT.jar
+```
 
 ## **Usage**
 
