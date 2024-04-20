@@ -94,7 +94,8 @@ public class Main extends Application {
 
         setupListeners(); // Add listeners for job changes, slider movements, etc.
 
-        setupStage(primaryStage);// Final stage setup
+        setupStage(primaryStage);// Final stage setup option 1: top, right bottom, left bottom
+//        setupStage2(primaryStage);// Final stage setup option 2: left, top right, bottom right
     }
 
     private ObservableList<Job> getJoblist() {
@@ -276,37 +277,51 @@ public class Main extends Application {
         // Calculate the percentage of each attribute
         double durationPercentage = (double) currentJob.getNoteDuration() / total;
         double decayPercentage = (double) currentJob.getNoteDecay() / total;
+        double gapPercentage = (double) currentJob.getNoteGap() / total;
 
-        //
-        // Option 1
-        //
-        // Create stops for the gradient
-        Stop[] stops = new Stop[] {
-                new Stop(0, Color.rgb(83, 86, 255)),
-                new Stop(durationPercentage, Color.rgb(83, 86, 255)),
-                new Stop(durationPercentage, Color.rgb(55, 140, 231)),
-                new Stop(durationPercentage + decayPercentage, Color.rgb(55, 140, 231)),
-                new Stop(durationPercentage + decayPercentage, Color.rgb(103, 198, 227)),
-                new Stop(1, Color.rgb(103, 198, 227))
+        // Calculate the starting point for each rectangle
+        double durationWidth = durationPercentage * canvas.getWidth();
+        double decayWidth = decayPercentage * canvas.getWidth();
+        double decayStartX = durationWidth; // The decay rectangle starts where the duration rectangle ends
+
+        // Draw the duration rectangle with a solid color
+        gc.setFill(Color.TEAL);
+        gc.fillRect(0, 0, durationWidth, 50);
+
+        // Create a LinearGradient for the decay rectangle
+        Stop[] decayGradientStops = new Stop[] {
+                new Stop(0, Color.TEAL), // Start color of the gradient
+                new Stop(1, Color.BEIGE)  // End color of the gradient
         };
-        // Create a linear gradient
-        LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
-        // Draw the gradient across the entire canvas
-        gc.setFill(gradient);
-        gc.fillRect(0, 0, canvas.getWidth(), 50);
-        // End of option 1
 
-        // //
-        // // Option 2
-        // //
-        // // Redraw the rectangles using percentages
-        // gc.setFill(Color.rgb(142, 122, 181));
-        // gc.fillRect(0, 0, durationPercentage * canvas.getWidth(), 50);
-        // gc.setFill(Color.rgb(183, 132, 183));
-        // gc.fillRect(durationPercentage * canvas.getWidth(), 0, decayPercentage * canvas.getWidth(), 50);
-        // gc.setFill(Color.rgb(228, 147, 179));
-        // gc.fillRect((durationPercentage + decayPercentage) * canvas.getWidth(), 0, gapPercentage * canvas.getWidth(), 50);
-        // // End of option 2
+        // Create a linear gradient
+        LinearGradient decayGradient = new LinearGradient(
+                0, 0, 1, 0,
+                true,
+                CycleMethod.NO_CYCLE,
+                decayGradientStops
+        );
+
+        // Draw the decay rectangle with the gradient
+        gc.setFill(decayGradient);
+        gc.fillRect(decayStartX, 0, decayWidth, 50);
+
+        // Draw the gap rectangle with a solid color
+        double gapStartX = decayStartX + decayWidth; // It starts where the decay rectangle ends
+        double gapWidth = gapPercentage * canvas.getWidth();
+        gc.setFill(Color.BEIGE);
+        gc.fillRect(gapStartX, 0, gapWidth, 50);
+
+        // Set the stroke color
+        gc.setStroke(Color.BLACK); // This will set the color of the borders
+
+        // Set the line width for the borders
+        gc.setLineWidth(1); // This will set the border width to 1 pixel
+
+        // Draw borders around the rectangles
+        gc.strokeRect(0, 0, durationWidth, 50); // Border for duration rectangle
+        gc.strokeRect(decayStartX, 0, decayWidth, 50); // Border for decay rectangle
+        gc.strokeRect(gapStartX, 0, gapWidth, 50); // Border for gap rectangle
 
         // Set the fill color for the text
         gc.setFill(Color.BLACK);
@@ -501,7 +516,6 @@ public class Main extends Application {
         });
     }
 
-    //TODO: change layout to top, left bottom and right bottom
     private void setupStage2(Stage primaryStage) {
         //
         // Right SplitPane
