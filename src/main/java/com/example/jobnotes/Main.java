@@ -41,7 +41,6 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     private Job currentJob= new Job("test") ;  // Job instance
-
     private Job job1 = new Job("Job one");
     private Job job2 = new Job("Job two");
     private Job job3 = new Job("Job three");
@@ -113,8 +112,8 @@ public class Main extends Application {
         ObservableList<Job> jobs = FXCollections.observableArrayList(job1, job2, job3);
         return jobs;
     }
-    //TODO:set first job as default selection
-    //TODO: refresh jobs list view simultaneously when customizing job, instead of at new selection
+
+    //TODO: refresh jobs list view and table view for velocity change as well
     private ListView<Job> getJobListView() {
         ObservableList<Job> jobs= getJoblist();
         // Create a ListView for left section using a list of Jobs
@@ -123,6 +122,11 @@ public class Main extends Application {
         //
         // Current job
         //
+
+        // Select the first job by default
+        jobsListView.getSelectionModel().selectFirst();
+        currentJob = jobs.get(0);
+
         jobsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
@@ -130,6 +134,7 @@ public class Main extends Application {
                     updateUIWithJob(currentJob);// update UI for selected job
                 }
         );
+
         return jobsListView;
     }
 
