@@ -39,6 +39,8 @@ public class Main extends Application {
     // Create GridPane and its components on right top
     private GridPane grid = new GridPane();
     private TextField jobNameField = new TextField();
+
+    private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long.");
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
     private Spinner<Integer> toNoteSpinner = new Spinner<>(0, 127, 0);
     private ToggleGroup group = new ToggleGroup();
@@ -146,7 +148,7 @@ public class Main extends Application {
 
         TitledPane tp = new TitledPane("Interval", hbox);
         tp.setCollapsible(true);
-        grid.add(tp, 0, 4, 2, 1);  // Adds the TitledPane to the grid.
+        grid.add(tp, 0, 5, 2, 1);  // Adds the TitledPane to the grid.
     }
 
     public void updateIntervalToggleGroup() {
@@ -195,25 +197,25 @@ public class Main extends Application {
 
         TitledPane tp2 = new TitledPane("Note Times", vbox);
         tp2.setCollapsible(true);
-        grid.add(tp2, 0, 5, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
+        grid.add(tp2, 0, 6, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
     }
 
     private void setupCheckBoxAndCanvas() {
         //
         // CheckBox
         //
-        grid.add(checkBox, 0, 6, 2, 1);  // Adds the checkBox to the grid at column 0, row 6, and makes it span across 2 columns and 1 row.
+        grid.add(checkBox, 0, 7, 2, 1);  // Adds the checkBox to the grid at column 0, row 6, and makes it span across 2 columns and 1 row.
 
         //
         // Label to show total note time
         //
-        grid.add(totaltimeLabel, 0, 7, 2, 1);  // Adds the time label to the grid at column 0, row 7, and makes it span across 2 columns and 1 row.
+        grid.add(totaltimeLabel, 0, 8, 2, 1);  // Adds the time label to the grid at column 0, row 7, and makes it span across 2 columns and 1 row.
 
         //
         // Canvas
         //
         updateCanvas(); // initializes the canvas
-        grid.add(canvas, 0, 8, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
+        grid.add(canvas, 0, 9, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
     //TODO: add three ways to set velocity
@@ -239,15 +241,16 @@ public class Main extends Application {
         Label fromNoteLabel = new Label("From Note:");  // Label for the from note spinner
         Label toNoteLabel = new Label("To Note:");  // Label for the to note spinner
         grid.add(jobNameLabel, 0, 1);
-        grid.add(fromNoteLabel, 0, 2);
-        grid.add(toNoteLabel, 0, 3);
+        grid.add(jobNameWarningLabel, 1, 2, 2, 1);
+        grid.add(fromNoteLabel, 0, 3);
+        grid.add(toNoteLabel, 0, 4);
 
         //
         // TextField and Spinners
         //
         grid.add(jobNameField, 1, 1);
-        grid.add(fromNoteSpinner, 1, 2);
-        grid.add(toNoteSpinner, 1, 3);
+        grid.add(fromNoteSpinner, 1, 3);
+        grid.add(toNoteSpinner, 1, 4);
 
 
         setupIntervalToggleGroup();// Setup RadioButtons for intervals
@@ -450,7 +453,7 @@ public class Main extends Application {
     private void setupListeners() {
         // Add a listener to the 'jobNameField' text property
         jobNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Focus lost
+            // text changes
             String newName = jobNameField.getText().trim();  // Trim leading and trailing whitespaces
 
             // Check if job name is not empty and not exceeding 20 characters
