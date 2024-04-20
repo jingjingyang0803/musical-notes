@@ -42,6 +42,9 @@ public class Main extends Application {
 
     private Job currentJob= new Job("test") ;  // Job instance
 
+    private Job job1 = new Job("Job one");
+    private Job job2 = new Job("Job two");
+    private Job job3 = new Job("Job three");
     // Create ListView on left
     private ListView<Job> jobsListView;
 
@@ -95,18 +98,15 @@ public class Main extends Application {
         setupStage(primaryStage);// Final stage setup
     }
 
-    private ObservableList<Job> getJobs() {
+    private ObservableList<Job> getJoblist() {
         //
-        // Example Job List
+        // Customize Job List
         //
-        Job job1 = new Job("Job one");
         job1.setVelocity(85);
 
-        Job job2 = new Job("Job two");
         List<Integer> vs = Arrays.asList(60, 60, 100);
         job2.setSpecificVelocities(vs);
 
-        Job job3 = new Job("Job three");
         job3.setDistributedVelocities(50, 90, 4);
 
         // Create a list of jobs
@@ -116,7 +116,7 @@ public class Main extends Application {
     //TODO:set first job as default selection
     //TODO: refresh jobs list view simultaneously when customizing job, instead of at new selection
     private ListView<Job> getJobListView() {
-        ObservableList<Job> jobs= getJobs();
+        ObservableList<Job> jobs= getJoblist();
         // Create a ListView for left section using a list of Jobs
         jobsListView = new ListView<>(jobs);
 
@@ -133,6 +133,17 @@ public class Main extends Application {
                 }
         );
         return jobsListView;
+    }
+
+    private void refreshJobListView() {
+        // Trigger an update to ListView to reflect changes
+        jobsListView.setItems(null);
+
+        ObservableList<Job> jobs= getJoblist(); // getJobs() fetches the updated list
+        jobsListView.setItems(jobs);
+
+        // Optionally, if jobs list is not recreated each time
+        jobsListView.refresh();
     }
 
     private void setupIntervalToggleGroup() {
@@ -160,6 +171,7 @@ public class Main extends Application {
             button.setOnAction(event -> {
                 currentJob.setInterval(interval);
 
+                refreshJobListView();// update list of jobs whenever job details change
                 refreshNotesTable();// update table of notes whenever job details change
             });
 
@@ -409,6 +421,7 @@ public class Main extends Application {
         fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // update job
             currentJob.setFromNote(newValue.intValue());
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
         });
 
@@ -416,6 +429,7 @@ public class Main extends Application {
         toNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // update job
             currentJob.setToNote(newValue.intValue());
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
         });
 
@@ -424,6 +438,7 @@ public class Main extends Application {
             durationLabel.setText("Duration: " + newValue.intValue() + " ms");
             // update job
             currentJob.setNoteDuration(newValue.intValue());
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
@@ -431,6 +446,7 @@ public class Main extends Application {
             decayLabel.setText("Decay: " + newValue.intValue() + " ms");
             // update job
             currentJob.setNoteDecay(newValue.intValue());
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
@@ -438,6 +454,7 @@ public class Main extends Application {
             gapLabel.setText("Gap: " + newValue.intValue() + " ms");
             // update job
             currentJob.setNoteGap(newValue.intValue());
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
@@ -459,6 +476,7 @@ public class Main extends Application {
                 currentJob.setNoteGap((int) gapSlider.getValue());
             }
 
+            refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
