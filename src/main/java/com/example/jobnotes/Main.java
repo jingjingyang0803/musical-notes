@@ -69,6 +69,8 @@ public class Main extends Application {
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
     private TableView<Note> table;
 
+    //TODO: rename var/methods like job editing view, ...
+    //TODO: add inline comments
     @Override
     public void start(Stage primaryStage) {
         //
@@ -111,7 +113,7 @@ public class Main extends Application {
         ObservableList<Job> jobs = FXCollections.observableArrayList(job1, job2, job3);
         return jobs;
     }
-
+    //TODO:set first job as default selection
     //TODO: refresh jobs list view simultaneously when customizing job, instead of at new selection
     private ListView<Job> getJobListView() {
         ObservableList<Job> jobs= getJobs();
@@ -207,6 +209,7 @@ public class Main extends Application {
         grid.add(canvas, 0, 8, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
+    //TODO: add three ways to set velocity
     private void setupJobComponents() {
         grid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
         grid.setHgap(10);  // Set horizontal gap between grid cells
