@@ -120,9 +120,11 @@ public class Main extends Application {
         //
         jobsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
+                    currentJob.setName(jobNameField.getText()); // update job name
+
                     int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
-                    currentJob = jobs.get(selectedIndex);
-                    updateUIWithJob(currentJob);
+                    currentJob = jobs.get(selectedIndex);// set current job as selected
+                    updateUIWithJob(currentJob);// update UI for selected job
                 }
         );
         return jobsListView;
@@ -449,6 +451,7 @@ public class Main extends Application {
         noteList.setAll(notes); // Replace the items in the TableView with the new list
         table.refresh(); // Refresh the TableView to display the new items
     }
+
     private void setupStage(Stage primaryStage) {
         //
         // Right SplitPane
