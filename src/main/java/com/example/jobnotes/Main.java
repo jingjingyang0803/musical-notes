@@ -66,15 +66,13 @@ public class Main extends Application {
     private RadioButton singularVelocityButton = new RadioButton("Singular Velocity");
     private RadioButton specificVelocitiesButton = new RadioButton("Specific Velocities");
     private RadioButton distributedVelocitiesButton = new RadioButton("Distributed Velocities");
-
-    private Label singularVelocityLabel = new Label("Velocity:");
-    private Label specificVelocitiesLabel = new Label("Velocities (comma-separated):");
-    private Label firstVelocityLabel = new Label("First Velocity:");
-    private Label lastVelocityLabel = new Label("Last Velocity:");
-    private Label countLabel = new Label("Count:");
     // Velocity control Components
     private Spinner<Integer> singularVelocitySpinner = new Spinner<>(1, 127, 80);
     private TextField specificVelocitiesField = new TextField();
+    private Label specificVelocitiesWarningLabel = new Label("(comma-separated, each within 1-127)");
+    private Label firstVelocityLabel = new Label("First Velocity:");
+    private Label lastVelocityLabel = new Label("Last Velocity:");
+    private Label countLabel = new Label("Count:");
     private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
     private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
     private Spinner<Integer> countSpinner = new Spinner<>(1, 10, 4);  // Example range for count
@@ -253,22 +251,30 @@ public class Main extends Application {
 
         // Singular Velocity Components
         velocityGrid.add(singularVelocityButton, 0, 0);
-        velocityGrid.add(singularVelocityLabel, 0, 1);
-        velocityGrid.add(singularVelocitySpinner, 1, 1);
+        velocityGrid.add(singularVelocitySpinner, 1, 0);
 
         // Specific Velocities Components
-        velocityGrid.add(specificVelocitiesButton, 0, 2);
-        velocityGrid.add(specificVelocitiesLabel, 0, 3);
-        velocityGrid.add(specificVelocitiesField, 1, 3);
+        velocityGrid.add(specificVelocitiesButton, 0, 1);
+        velocityGrid.add(specificVelocitiesField, 1, 1);
+        velocityGrid.add(specificVelocitiesWarningLabel, 1, 2);
 
         // Distributed Velocities Components
-        velocityGrid.add(distributedVelocitiesButton, 0, 4);
-        velocityGrid.add(firstVelocityLabel, 0, 5);
-        velocityGrid.add(firstVelocitySpinner, 1, 5);
-        velocityGrid.add(lastVelocityLabel, 0, 6);
-        velocityGrid.add(lastVelocitySpinner, 1, 6);
-        velocityGrid.add(countLabel, 0, 7);
-        velocityGrid.add(countSpinner, 1, 7);
+        velocityGrid.add(distributedVelocitiesButton, 0, 3,2,1);
+        velocityGrid.add(firstVelocityLabel, 0, 4);
+        velocityGrid.add(firstVelocitySpinner, 1, 4);
+        velocityGrid.add(lastVelocityLabel, 0, 5);
+        velocityGrid.add(lastVelocitySpinner, 1, 5);
+        velocityGrid.add(countLabel, 0, 6);
+        velocityGrid.add(countSpinner, 1, 6);
+
+        firstVelocityLabel.setAlignment(Pos.CENTER_RIGHT);
+        lastVelocityLabel.setAlignment(Pos.CENTER_RIGHT);
+        countLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        // set the minimum or preferred width to see the effect
+        firstVelocityLabel.setMinWidth(120);
+        lastVelocityLabel.setMinWidth(120);
+        countLabel.setMinWidth(120);
 
         // Initial visibility settings
         updateVelocityComponentsVisibility();
@@ -280,11 +286,10 @@ public class Main extends Application {
     }
 
     private void updateVelocityComponentsVisibility() {
-        singularVelocityLabel.setVisible(singularVelocityButton.isSelected());
         singularVelocitySpinner.setVisible(singularVelocityButton.isSelected());
 
-        specificVelocitiesLabel.setVisible(specificVelocitiesButton.isSelected());
         specificVelocitiesField.setVisible(specificVelocitiesButton.isSelected());
+        specificVelocitiesWarningLabel.setVisible(specificVelocitiesButton.isSelected());
 
         firstVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
         lastVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
@@ -611,6 +616,7 @@ public class Main extends Application {
 
         // Listener for singular velocity
         singularVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            //            singularVelocityButton.isSelected()==true
             currentJob.setVelocity(newVal);
             refreshJobListView();  // update list of jobs whenever job details change
             refreshNotesTable();// update table of notes whenever job details change
@@ -618,6 +624,7 @@ public class Main extends Application {
 
         // Listener for specific velocities
         specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
+            //            specificVelocitiesButton.isSelected()==true
             List<Integer> velocities = parseVelocities(newVal);
             currentJob.setSpecificVelocities(velocities);
             refreshJobListView();  // update list of jobs whenever job details change
@@ -627,6 +634,7 @@ public class Main extends Application {
         // Listener for distributed velocities
         firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             // update after lastVelocity and countSpinner also have valid values
+            //            distributedVelocitiesButton.isSelected()==true
         });
         lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             // Same as above
