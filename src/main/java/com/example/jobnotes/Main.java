@@ -32,9 +32,9 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     private Job currentJob= new Job("test") ;  // Job instance
-    private Job job1 = new Job("Job one");
-    private Job job2 = new Job("Job two");
-    private Job job3 = new Job("Job three");
+
+    private ObservableList<Job> jobs = FXCollections.observableArrayList();
+
     // Create ListView on left
     private ListView<Job> jobsListView;
 
@@ -68,13 +68,13 @@ public class Main extends Application {
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
     private Label singularVelocityLabel = new Label("80");
     private TextField specificVelocitiesField = new TextField();
-    private Label specificVelocitiesWarningLabel = new Label("(comma-separated, each within 1-127)");
+    private Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
     private Label firstVelocityLabel = new Label("First Velocity:");
     private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
     private Label lastVelocityLabel = new Label("Last Velocity:");
     private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
     private Label countLabel = new Label("Count:");
-    private Spinner<Integer> countSpinner = new Spinner<>(1, 10, 4);  // Example range for count
+    private Spinner<Integer> countSpinner = new Spinner<>(3, 127, 4);  // Example range for count
 
     // Create TableView on right bottom
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
@@ -84,6 +84,22 @@ public class Main extends Application {
     //TODO: add inline comments
     @Override
     public void start(Stage primaryStage) {
+        //
+        // Customize Job List
+        //
+        Job job1 = new Job("Job one");
+        job1.setVelocity(85);
+
+        Job job2 = new Job("Job two");
+        List<Integer> vs = Arrays.asList(60, 60, 100);
+        job2.setSpecificVelocities(vs);
+
+        Job job3 = new Job("Job three");
+        job3.setDistributedVelocities(50, 90, 4);
+
+        // Create a list of jobs
+        jobs.addAll(job1,job2,job3);
+
         //
         // Left Section
         //
@@ -107,25 +123,8 @@ public class Main extends Application {
 //        setupStageLeftRight(primaryStage);// Final stage setup option 2: left, top right, bottom right
     }
 
-    private ObservableList<Job> getJobList() {
-        //
-        // Customize Job List
-        //
-        job1.setVelocity(85);
-
-        List<Integer> vs = Arrays.asList(60, 60, 100);
-        job2.setSpecificVelocities(vs);
-
-        job3.setDistributedVelocities(50, 90, 4);
-
-        // Create a list of jobs
-        ObservableList<Job> jobs = FXCollections.observableArrayList(job1, job2, job3);
-        return jobs;
-    }
-
     //TODO: refresh jobs list view and table view for velocity change as well
     private ListView<Job> getJobListView() {
-        ObservableList<Job> jobs= getJobList();
         // Create a ListView for left section using a list of Jobs
         jobsListView = new ListView<>(jobs);
 
@@ -154,7 +153,6 @@ public class Main extends Application {
         // Trigger an update to ListView to reflect changes
         jobsListView.setItems(null);// Clear items to refresh
 
-        ObservableList<Job> jobs= getJobList(); // getJobs() fetches the updated list
         jobsListView.setItems(jobs);// Set new items
 
         // Optionally, if jobs list is not recreated each time
@@ -615,8 +613,9 @@ public class Main extends Application {
 
         // Add listeners to toggle group to update UI based on selection
         velocityGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
-            updateVelocityComponentsVisibility();
+
             if (newVal == singularVelocityButton) {
+                specificVelocitiesField.setText("");
                 // If the singular velocity button is selected, apply the singular velocity settings
                 int currentVelocity = (int) singularVelocitySlider.getValue();
                 currentJob.setVelocity(currentVelocity);
@@ -626,11 +625,9 @@ public class Main extends Application {
                 List<Integer> velocities = parseDistributedVelocities(specificVelocitiesField.getText());
                 if (velocities != null) {
                     currentJob.setSpecificVelocities(velocities);
-                } else {
-                    specificVelocitiesWarningLabel.setText("Invalid input. Please enter comma-separated numbers.");
                 }
-
             } else if (newVal == distributedVelocitiesButton) {
+                specificVelocitiesField.setText("");
                 // If the distributed velocities button is selected, calculate and apply distributed velocities
                 try {
                     currentJob.setDistributedVelocities(
@@ -643,10 +640,71 @@ public class Main extends Application {
                 }
             }
 
-            System.out.println(currentJob);
             // Always refresh UI components to reflect the current job and note settings
             refreshJobListView(); // update list of jobs whenever job details change
             refreshNotesTableView(); // update table of notes whenever job details change
+            updateVelocityComponentsVisibility();
+        });
+
+        // Listener for singular velocity
+        singularVelocitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            //            singularVelocityButton.isSelected()==true
+            currentJob.setVelocity(newVal.intValue());
+            singularVelocityLabel.setText(newVal.intValue()+"");
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
+        });
+
+        // Listener for specific velocities
+        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
+            //            specificVelocitiesButton.isSelected()==true
+            List<Integer> velocities = parseDistributedVelocities(newVal);
+            if (velocities != null) {
+                currentJob.setSpecificVelocities(velocities);
+                refreshJobListView();  // update list of jobs whenever job details change
+                refreshNotesTableView();// update table of notes whenever job details change
+            }
+        });
+
+        // Listener for distributed velocities
+        firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            //            distributedVelocitiesButton.isSelected()==true
+            if (newVal != null) {
+                lastVelocitySpinner.setDisable(newVal >= lastVelocitySpinner.getValue()-countSpinner.getValue());
+            }
+
+            currentJob.setDistributedVelocities(
+                    newVal,
+                    lastVelocitySpinner.getValue(),
+                    countSpinner.getValue()
+            );
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
+        });
+
+        lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            //            distributedVelocitiesButton.isSelected()==true
+            if (newVal != null) {
+                lastVelocitySpinner.setDisable(newVal <= firstVelocitySpinner.getValue()+countSpinner.getValue());
+            }
+
+            currentJob.setDistributedVelocities(
+                    firstVelocitySpinner.getValue(),
+                    newVal,
+                    countSpinner.getValue()
+            );
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
+        });
+
+        countSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            currentJob.setDistributedVelocities(
+                    firstVelocitySpinner.getValue(),
+                    lastVelocitySpinner.getValue(),
+                    newVal
+            );
+            refreshJobListView();  // update list of jobs whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
     }
 
