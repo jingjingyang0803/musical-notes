@@ -616,41 +616,37 @@ public class Main extends Application {
         // Add listeners to toggle group to update UI based on selection
         velocityGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
             updateVelocityComponentsVisibility();
-        });
+            if (newVal == singularVelocityButton) {
+                // If the singular velocity button is selected, apply the singular velocity settings
+                int currentVelocity = (int) singularVelocitySlider.getValue();
+                currentJob.setVelocity(currentVelocity);
+                singularVelocityLabel.setText(String.valueOf(currentVelocity));
+            } else if (newVal == specificVelocitiesButton) {
+                // If the specific velocities button is selected, parse and apply specific velocities
+                List<Integer> velocities = parseDistributedVelocities(specificVelocitiesField.getText());
+                if (velocities != null) {
+                    currentJob.setSpecificVelocities(velocities);
+                } else {
+                    specificVelocitiesWarningLabel.setText("Invalid input. Please enter comma-separated numbers.");
+                }
 
-        // Listener for singular velocity
-        singularVelocitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            //            singularVelocityButton.isSelected()==true
-            currentJob.setVelocity(newVal.intValue());
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
-        });
+            } else if (newVal == distributedVelocitiesButton) {
+                // If the distributed velocities button is selected, calculate and apply distributed velocities
+                try {
+                    currentJob.setDistributedVelocities(
+                            firstVelocitySpinner.getValue(),
+                            lastVelocitySpinner.getValue(),
+                            countSpinner.getValue()
+                    );
+                } catch (IllegalArgumentException e) {
+                    specificVelocitiesWarningLabel.setText(e.getMessage());
+                }
+            }
 
-        // Listener for specific velocities
-        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
-            //            specificVelocitiesButton.isSelected()==true
-            List<Integer> velocities = parseDistributedVelocities(newVal);
-            currentJob.setSpecificVelocities(velocities);
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
-        });
-
-        // Listener for distributed velocities
-        firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            // update after lastVelocity and countSpinner also have valid values
-            //            distributedVelocitiesButton.isSelected()==true
-        });
-        lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            // Same as above
-        });
-        countSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            currentJob.setDistributedVelocities(
-                    firstVelocitySpinner.getValue(),
-                    lastVelocitySpinner.getValue(),
-                    newVal
-            );
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
+            System.out.println(currentJob);
+            // Always refresh UI components to reflect the current job and note settings
+            refreshJobListView(); // update list of jobs whenever job details change
+            refreshNotesTableView(); // update table of notes whenever job details change
         });
     }
 
