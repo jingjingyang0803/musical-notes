@@ -114,7 +114,7 @@ public class Main extends Application {
 
         List<Integer> vs = Arrays.asList(60, 60, 100);
         job2.setSpecificVelocities(vs);
-        
+
         job3.setDistributedVelocities(50, 90, 4);
 
         // Create a list of jobs
@@ -186,7 +186,7 @@ public class Main extends Application {
                 currentJob.setInterval(interval);
 
                 refreshJobListView();// update list of jobs whenever job details change
-                refreshNotesTable();// update table of notes whenever job details change
+                refreshNotesTableView();// update table of notes whenever job details change
             });
 
             internalsHbox.getChildren().add(button); // Add the button to the HBox
@@ -522,7 +522,7 @@ public class Main extends Application {
         return noteTable;
     }
 
-    private void refreshNotesTable() {
+    private void refreshNotesTableView() {
         List<Note> notes = getNotes(); // Generate the list uses currentJob
         noteList.setAll(notes); // Replace the items in the TableView with the new list
         noteTable.refresh(); // Refresh the TableView to display the new items
@@ -548,7 +548,7 @@ public class Main extends Application {
             // update job
             currentJob.setFromNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
 
         // Add a listener to the 'toNoteSpinner' value property
@@ -556,7 +556,7 @@ public class Main extends Application {
             // update job
             currentJob.setToNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
 
         // Add listeners to the sliders value property
@@ -565,7 +565,7 @@ public class Main extends Application {
             // update job
             currentJob.setNoteDuration(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
         decaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -573,7 +573,7 @@ public class Main extends Application {
             // update job
             currentJob.setNoteDecay(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
         gapSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -581,7 +581,7 @@ public class Main extends Application {
             // update job
             currentJob.setNoteGap(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
 
@@ -603,7 +603,7 @@ public class Main extends Application {
             }
 
             refreshJobListView();// update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
             updateCanvas(); // update the canvas
         });
 
@@ -617,16 +617,16 @@ public class Main extends Application {
             //            singularVelocityButton.isSelected()==true
             currentJob.setVelocity(newVal);
             refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
 
         // Listener for specific velocities
         specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
             //            specificVelocitiesButton.isSelected()==true
-            List<Integer> velocities = parseVelocities(newVal);
+            List<Integer> velocities = parseDistributedVelocities(newVal);
             currentJob.setSpecificVelocities(velocities);
             refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
 
         // Listener for distributed velocities
@@ -644,12 +644,12 @@ public class Main extends Application {
                     newVal
             );
             refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTable();// update table of notes whenever job details change
+            refreshNotesTableView();// update table of notes whenever job details change
         });
     }
 
     // Helper method to parse velocities from the text field
-    private List<Integer> parseVelocities(String input) {
+    private List<Integer> parseDistributedVelocities(String input) {
         if (input == null || input.trim().isEmpty()) {
             return Collections.emptyList();
         }
