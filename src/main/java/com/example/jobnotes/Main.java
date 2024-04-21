@@ -39,14 +39,13 @@ public class Main extends Application {
     private ListView<Job> jobsListView;
 
     // Create GridPane and its components on right top
-    private GridPane grid = new GridPane();
+    private GridPane jobEditPaneGrid = new GridPane();
     private TextField jobNameField = new TextField();
-
     private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long.");
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
     private Spinner<Integer> toNoteSpinner = new Spinner<>(0, 127, 0);
-    private ToggleGroup group = new ToggleGroup();
-    private HBox hbox = new HBox(10);// Spacing of 10 pixels between each radio button
+    private ToggleGroup internalGroup = new ToggleGroup();
+    private HBox internalsHbox = new HBox(10);// Spacing of 10 pixels between each radio button
     // Labels for Sliders
     private Label durationLabel = new Label("Duration: 0 ms");
     private Label decayLabel = new Label("Decay: 0 ms");
@@ -58,8 +57,7 @@ public class Main extends Application {
     // Sliders
     private CheckBox checkBox = new CheckBox("Use default times");
     private Label totaltimeLabel = new Label("Total Note Time: 0 ms");
-    private Canvas canvas = new Canvas(300, 50);
-
+    private Canvas noteTimeCanvas = new Canvas(300, 50);
 
     // Velocity selection setup
     private ToggleGroup velocityGroup = new ToggleGroup();
@@ -79,7 +77,7 @@ public class Main extends Application {
 
     // Create TableView on right bottom
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
-    private TableView<Note> table;
+    private TableView<Note> noteTable;
 
     //TODO: rename var/methods like job editing view, ...
     //TODO: add inline comments
@@ -99,7 +97,7 @@ public class Main extends Application {
         //
         // Right Bottom Section
         //
-        table = getNoteTableView();
+        noteTable = getNoteTableView();
 
 
         setupListeners(); // Add listeners for job changes, slider movements, etc.
@@ -116,7 +114,7 @@ public class Main extends Application {
 
         List<Integer> vs = Arrays.asList(60, 60, 100);
         job2.setSpecificVelocities(vs);
-
+        
         job3.setDistributedVelocities(50, 90, 4);
 
         // Create a list of jobs
@@ -165,18 +163,18 @@ public class Main extends Application {
     private void setupIntervalToggleGroup() {
         updateIntervalToggleGroup(); // Call this method to create/update radio buttons
 
-        TitledPane intervalTP = new TitledPane("Interval", hbox);
+        TitledPane intervalTP = new TitledPane("Interval", internalsHbox);
         intervalTP.setCollapsible(true);
-        grid.add(intervalTP, 0, 5, 2, 1);  // Adds the TitledPane to the grid.
+        jobEditPaneGrid.add(intervalTP, 0, 5, 2, 1);  // Adds the TitledPane to the grid.
     }
 
     public void updateIntervalToggleGroup() {
-        hbox.getChildren().clear(); // Clear existing radio buttons
+        internalsHbox.getChildren().clear(); // Clear existing radio buttons
 
         List<Job.Interval> intervals = Arrays.asList(Job.Interval.ONE, Job.Interval.THREE, Job.Interval.SIX, Job.Interval.TWELVE);
         for (Job.Interval interval : intervals) {
             RadioButton button = new RadioButton(interval.name());
-            button.setToggleGroup(group);
+            button.setToggleGroup(internalGroup);
 
             // Check if interval is the current job's interval
             if (interval == currentJob.getInterval()) {
@@ -191,7 +189,7 @@ public class Main extends Application {
                 refreshNotesTable();// update table of notes whenever job details change
             });
 
-            hbox.getChildren().add(button); // Add the button to the HBox
+            internalsHbox.getChildren().add(button); // Add the button to the HBox
         }
     }
 
@@ -217,25 +215,25 @@ public class Main extends Application {
         TitledPane noteTimesTP = new TitledPane("Note Times", vbox);
         noteTimesTP.setCollapsible(true);
         noteTimesTP.setExpanded(false);// set this TitledPane to be collapsed by default when your application starts
-        grid.add(noteTimesTP, 0, 6, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
+        jobEditPaneGrid.add(noteTimesTP, 0, 6, 2, 1);  // Adds the TitledPane to the grid at column 0, row 5, and makes it span across 2 columns and 1 row.
     }
 
     private void setupCheckBoxAndCanvas() {
         //
         // CheckBox
         //
-        grid.add(checkBox, 0, 7, 2, 1);  // Adds the checkBox to the grid at column 0, row 6, and makes it span across 2 columns and 1 row.
+        jobEditPaneGrid.add(checkBox, 0, 7, 2, 1);  // Adds the checkBox to the grid at column 0, row 6, and makes it span across 2 columns and 1 row.
 
         //
         // Label to show total note time
         //
-        grid.add(totaltimeLabel, 0, 8, 2, 1);  // Adds the time label to the grid at column 0, row 7, and makes it span across 2 columns and 1 row.
+        jobEditPaneGrid.add(totaltimeLabel, 0, 8, 2, 1);  // Adds the time label to the grid at column 0, row 7, and makes it span across 2 columns and 1 row.
 
         //
         // Canvas
         //
         updateCanvas(); // initializes the canvas
-        grid.add(canvas, 0, 9, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
+        jobEditPaneGrid.add(noteTimeCanvas, 0, 9, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
     private void setupVelocityComponents() {
@@ -282,7 +280,7 @@ public class Main extends Application {
         TitledPane velocityTP = new TitledPane("Note Velocities", velocityGrid);
         velocityTP.setCollapsible(true);
         velocityTP.setExpanded(false);
-        grid.add(velocityTP, 0, 10, 2, 1);
+        jobEditPaneGrid.add(velocityTP, 0, 10, 2, 1);
     }
 
     private void updateVelocityComponentsVisibility() {
@@ -302,18 +300,18 @@ public class Main extends Application {
     //TODO: add three ways to set velocity, make them clear, and set constraints like range
     //TODO: add listeners and update list and table
     private void setupJobComponents() {
-        grid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
-        grid.setHgap(10);  // Set horizontal gap between grid cells
-        grid.setVgap(15);  // Set vertical gap between grid cells
-        grid.setPadding(new Insets(25));  // Set the padding for the GridPane to 25 units on all sides
-        grid.setMinSize(0, 0);  // Set minimum width and height to 0
+        jobEditPaneGrid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
+        jobEditPaneGrid.setHgap(10);  // Set horizontal gap between grid cells
+        jobEditPaneGrid.setVgap(15);  // Set vertical gap between grid cells
+        jobEditPaneGrid.setPadding(new Insets(25));  // Set the padding for the GridPane to 25 units on all sides
+        jobEditPaneGrid.setMinSize(0, 0);  // Set minimum width and height to 0
 
         //
         // Text for heading
         //
         Text heading = new Text("Please customize the job details");
         heading.setFont(new Font(20)); // Set font size to 20
-        grid.add(heading, 0, 0, 2, 1);  // Adds the heading to the grid at column 0, row 0, and makes it span across 2 columns and 1 row.
+        jobEditPaneGrid.add(heading, 0, 0, 2, 1);  // Adds the heading to the grid at column 0, row 0, and makes it span across 2 columns and 1 row.
         GridPane.setHalignment(heading, HPos.CENTER);
 
         //
@@ -322,17 +320,17 @@ public class Main extends Application {
         Label jobNameLabel = new Label("Job Name:");  // Label for the job name field
         Label fromNoteLabel = new Label("From Note:");  // Label for the from note spinner
         Label toNoteLabel = new Label("To Note:");  // Label for the to note spinner
-        grid.add(jobNameLabel, 0, 1);
-        grid.add(jobNameWarningLabel, 1, 2, 2, 1);
-        grid.add(fromNoteLabel, 0, 3);
-        grid.add(toNoteLabel, 0, 4);
+        jobEditPaneGrid.add(jobNameLabel, 0, 1);
+        jobEditPaneGrid.add(jobNameWarningLabel, 1, 2, 2, 1);
+        jobEditPaneGrid.add(fromNoteLabel, 0, 3);
+        jobEditPaneGrid.add(toNoteLabel, 0, 4);
 
         //
         // TextField and Spinners
         //
-        grid.add(jobNameField, 1, 1);
-        grid.add(fromNoteSpinner, 1, 3);
-        grid.add(toNoteSpinner, 1, 4);
+        jobEditPaneGrid.add(jobNameField, 1, 1);
+        jobEditPaneGrid.add(fromNoteSpinner, 1, 3);
+        jobEditPaneGrid.add(toNoteSpinner, 1, 4);
 
         setupIntervalToggleGroup();// Setup RadioButtons for intervals
         setupSliders();
@@ -341,7 +339,7 @@ public class Main extends Application {
     }
 
     private void updateCanvas() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        GraphicsContext gc = noteTimeCanvas.getGraphicsContext2D();
 
         // Calculate the total
         int total = currentJob.getNoteDuration() + currentJob.getNoteDecay() + currentJob.getNoteGap();
@@ -353,8 +351,8 @@ public class Main extends Application {
         double gapPercentage = (double) currentJob.getNoteGap() / total;
 
         // Calculate the starting point for each rectangle
-        double durationWidth = durationPercentage * canvas.getWidth();
-        double decayWidth = decayPercentage * canvas.getWidth();
+        double durationWidth = durationPercentage * noteTimeCanvas.getWidth();
+        double decayWidth = decayPercentage * noteTimeCanvas.getWidth();
         double decayStartX = durationWidth; // The decay rectangle starts where the duration rectangle ends
 
         // Draw the duration rectangle with a solid color
@@ -381,7 +379,7 @@ public class Main extends Application {
 
         // Draw the gap rectangle with a solid color
         double gapStartX = decayStartX + decayWidth; // It starts where the decay rectangle ends
-        double gapWidth = gapPercentage * canvas.getWidth();
+        double gapWidth = gapPercentage * noteTimeCanvas.getWidth();
         gc.setFill(Color.BEIGE);
         gc.fillRect(gapStartX, 0, gapWidth, 50);
 
@@ -401,8 +399,8 @@ public class Main extends Application {
 
         // Add text to the rectangles
         gc.fillText("Duration", 5, 30);
-        gc.fillText("Decay", durationPercentage * canvas.getWidth() + 5, 30);
-        gc.fillText("Gap", (durationPercentage + decayPercentage) * canvas.getWidth() + 5, 30);
+        gc.fillText("Decay", durationPercentage * noteTimeCanvas.getWidth() + 5, 30);
+        gc.fillText("Gap", (durationPercentage + decayPercentage) * noteTimeCanvas.getWidth() + 5, 30);
     }
     
     private void updateUIWithJob(Job job) {
@@ -496,7 +494,7 @@ public class Main extends Application {
         // table
         //
         // Create a TableView object to display the notes
-        table = new TableView<>(noteList);
+        noteTable = new TableView<>(noteList);
 
         // This TableView should have four TableColumn objects
         TableColumn<Note, Integer> column1 = new TableColumn<>("Note");
@@ -517,17 +515,17 @@ public class Main extends Application {
         setRightAlignedTableColumn(column4);
 
         // Set the ObservableList of Note objects as the data source for the TableView
-        table.setItems(noteList);
+        noteTable.setItems(noteList);
 
         // Add the TableColumn objects to the TableView
-        table.getColumns().addAll(column1, column2, column3, column4);
-        return table;
+        noteTable.getColumns().addAll(column1, column2, column3, column4);
+        return noteTable;
     }
 
     private void refreshNotesTable() {
         List<Note> notes = getNotes(); // Generate the list uses currentJob
         noteList.setAll(notes); // Replace the items in the TableView with the new list
-        table.refresh(); // Refresh the TableView to display the new items
+        noteTable.refresh(); // Refresh the TableView to display the new items
     }
 
     private void setupListeners() {
@@ -668,7 +666,7 @@ public class Main extends Application {
         // Create a SplitPane for right section
         SplitPane rightSection = new SplitPane();
         rightSection.setOrientation(Orientation.VERTICAL);
-        rightSection.getItems().addAll(grid, table);
+        rightSection.getItems().addAll(jobEditPaneGrid, noteTable);
 
         //
         // Whole SplitPane
@@ -697,7 +695,7 @@ public class Main extends Application {
         // Create a SplitPane for the bottom section
         SplitPane bottomSection = new SplitPane();
         // Add left section and right section to the SplitPane
-        bottomSection.getItems().addAll(grid, table);
+        bottomSection.getItems().addAll(jobEditPaneGrid, noteTable);
         bottomSection.setDividerPositions(0.6);// adjust the size of each section to proper
         //
         // Whole SplitPane
