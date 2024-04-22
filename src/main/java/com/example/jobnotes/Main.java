@@ -69,7 +69,7 @@ public class Main extends Application {
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
     private Label singularVelocityLabel = new Label("80");
     private TextField specificVelocitiesField = new TextField();
-    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
+    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 80);
     private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
     private Spinner<Integer> countSpinner = new Spinner<>(3, 127, 4);  // Example range for count
 
@@ -120,7 +120,7 @@ public class Main extends Application {
 //        setupStageLeftRight(primaryStage);// Final stage setup option 2: left, top right, bottom right
     }
 
-    //TODO: refresh jobs list view and table view for velocity change as well
+    //TODO: from note must smaller then to note, first v must smaller then last v, add updatevvisiablity or add button selected check
     private ListView<Job> getJobListView() {
         // Create a ListView for left section using a list of Jobs
         jobsListView = new ListView<>(jobs);
@@ -535,6 +535,8 @@ public class Main extends Application {
 
         // Add a listener to the 'fromNoteSpinner' value property
         fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // update the minimum value of toNoteSpinner
+            toNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newValue + 1, 127, Math.max(toNoteSpinner.getValue(), newValue + 1)));
             // update job
             currentJob.setFromNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
@@ -543,6 +545,8 @@ public class Main extends Application {
 
         // Add a listener to the 'toNoteSpinner' value property
         toNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // update the maximum value of fromNoteSpinner
+            fromNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, newValue - 1, Math.min(fromNoteSpinner.getValue(), newValue - 1)));
             // update job
             currentJob.setToNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
@@ -653,7 +657,7 @@ public class Main extends Application {
         firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             //            distributedVelocitiesButton.isSelected()==true
             if (newVal != null) {
-                lastVelocitySpinner.setDisable(newVal >= lastVelocitySpinner.getValue()-countSpinner.getValue());
+                lastVelocitySpinner.setDisable(newVal >= lastVelocitySpinner.getValue());
             }
 
             currentJob.setDistributedVelocities(
@@ -668,7 +672,7 @@ public class Main extends Application {
         lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             //            distributedVelocitiesButton.isSelected()==true
             if (newVal != null) {
-                lastVelocitySpinner.setDisable(newVal <= firstVelocitySpinner.getValue()+countSpinner.getValue());
+                lastVelocitySpinner.setDisable(newVal <= firstVelocitySpinner.getValue());
             }
 
             currentJob.setDistributedVelocities(
