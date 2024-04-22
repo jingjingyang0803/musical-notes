@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javafx.application.Application;
@@ -68,12 +69,8 @@ public class Main extends Application {
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
     private Label singularVelocityLabel = new Label("80");
     private TextField specificVelocitiesField = new TextField();
-    private Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
-    private Label firstVelocityLabel = new Label("First Velocity:");
     private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
-    private Label lastVelocityLabel = new Label("Last Velocity:");
     private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
-    private Label countLabel = new Label("Count:");
     private Spinner<Integer> countSpinner = new Spinner<>(3, 127, 4);  // Example range for count
 
     // Create TableView on right bottom
@@ -252,10 +249,16 @@ public class Main extends Application {
         velocityGrid.add(singularVelocitySlider, 1, 0);
         velocityGrid.add(singularVelocityLabel, 1, 1);
 
+        Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
+
         // Specific Velocities Components
         velocityGrid.add(specificVelocitiesButton, 0, 2);
         velocityGrid.add(specificVelocitiesField, 1, 2);
         velocityGrid.add(specificVelocitiesWarningLabel, 1, 3);
+
+        Label firstVelocityLabel = new Label("First Velocity:");
+        Label lastVelocityLabel = new Label("Last Velocity:");
+        Label countLabel = new Label("Count:");
 
         // Distributed Velocities Components
         velocityGrid.add(distributedVelocitiesButton, 0, 4,2,1);
@@ -283,21 +286,6 @@ public class Main extends Application {
         velocityTP.setExpanded(false);
         jobEditPaneGrid.add(velocityTP, 0, 10, 2, 1);
     }
-
-//    private void updateVelocityToggleGroupVisibility() {
-//        singularVelocitySlider.setVisible(singularVelocityButton.isSelected());
-//        singularVelocityLabel.setVisible(singularVelocityButton.isSelected());
-//
-//        specificVelocitiesField.setVisible(specificVelocitiesButton.isSelected());
-//        specificVelocitiesWarningLabel.setVisible(specificVelocitiesButton.isSelected());
-//
-//        firstVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
-//        lastVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
-//        countLabel.setVisible(distributedVelocitiesButton.isSelected());
-//        firstVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
-//        lastVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
-//        countSpinner.setVisible(distributedVelocitiesButton.isSelected());
-//    }
 
     //TODO: add three ways to set velocity, make them clear, and set constraints like range
     //TODO: add listeners and update list and table
@@ -613,7 +601,6 @@ public class Main extends Application {
         velocityGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
 
             if (newVal == singularVelocityButton) {
-                specificVelocitiesField.setText("");
                 // If the singular velocity button is selected, apply the singular velocity settings
                 int currentVelocity = (int) singularVelocitySlider.getValue();
                 currentJob.setVelocity(currentVelocity);
@@ -625,7 +612,6 @@ public class Main extends Application {
                     currentJob.setSpecificVelocities(velocities);
                 }
             } else if (newVal == distributedVelocitiesButton) {
-                specificVelocitiesField.setText("");
                 // If the distributed velocities button is selected, calculate and apply distributed velocities
                 try {
                     currentJob.setDistributedVelocities(
@@ -634,7 +620,7 @@ public class Main extends Application {
                             countSpinner.getValue()
                     );
                 } catch (IllegalArgumentException e) {
-                    specificVelocitiesWarningLabel.setText(e.getMessage());
+                    System.out.println(e.getMessage());
                 }
             }
 
@@ -712,6 +698,7 @@ public class Main extends Application {
         }
         return Arrays.stream(input.split(","))
                 .map(String::trim)
+                .filter(Pattern.compile("\\d+").asPredicate())
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }
