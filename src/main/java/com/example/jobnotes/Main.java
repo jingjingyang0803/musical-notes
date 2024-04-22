@@ -141,6 +141,7 @@ public class Main extends Application {
                     if (newValue != null) { // Check if the new value is not null
                         int selectedIndex = jobsListView.getSelectionModel().getSelectedIndex();
                         currentJob = newValue; // Use newValue directly instead of getting it from the list
+                        velocityGroup.selectToggle(null); // Reset none of the toggles are selected
                         updateUIWithJob(currentJob); // Update UI for selected job
                     }
                 }
@@ -235,7 +236,7 @@ public class Main extends Application {
         jobEditPaneGrid.add(noteTimeCanvas, 0, 9, 2, 1);  // Adds the canvas to the grid at column 0, row 8, and makes it span across 2 columns and 1 row.
     }
 
-    private void setupVelocityComponents() {
+    private void setupVelocityToggleGroup() {
         GridPane velocityGrid = new GridPane();
         velocityGrid.setAlignment(Pos.TOP_CENTER);
         velocityGrid.setHgap(10);
@@ -277,29 +278,26 @@ public class Main extends Application {
         lastVelocityLabel.setMinWidth(120);
         countLabel.setMinWidth(120);
 
-        // Initial visibility settings
-        updateVelocityComponentsVisibility();
-
         TitledPane velocityTP = new TitledPane("Note Velocities", velocityGrid);
         velocityTP.setCollapsible(true);
         velocityTP.setExpanded(false);
         jobEditPaneGrid.add(velocityTP, 0, 10, 2, 1);
     }
 
-    private void updateVelocityComponentsVisibility() {
-        singularVelocitySlider.setVisible(singularVelocityButton.isSelected());
-        singularVelocityLabel.setVisible(singularVelocityButton.isSelected());
-
-        specificVelocitiesField.setVisible(specificVelocitiesButton.isSelected());
-        specificVelocitiesWarningLabel.setVisible(specificVelocitiesButton.isSelected());
-
-        firstVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
-        lastVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
-        countLabel.setVisible(distributedVelocitiesButton.isSelected());
-        firstVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
-        lastVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
-        countSpinner.setVisible(distributedVelocitiesButton.isSelected());
-    }
+//    private void updateVelocityToggleGroupVisibility() {
+//        singularVelocitySlider.setVisible(singularVelocityButton.isSelected());
+//        singularVelocityLabel.setVisible(singularVelocityButton.isSelected());
+//
+//        specificVelocitiesField.setVisible(specificVelocitiesButton.isSelected());
+//        specificVelocitiesWarningLabel.setVisible(specificVelocitiesButton.isSelected());
+//
+//        firstVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
+//        lastVelocityLabel.setVisible(distributedVelocitiesButton.isSelected());
+//        countLabel.setVisible(distributedVelocitiesButton.isSelected());
+//        firstVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
+//        lastVelocitySpinner.setVisible(distributedVelocitiesButton.isSelected());
+//        countSpinner.setVisible(distributedVelocitiesButton.isSelected());
+//    }
 
     //TODO: add three ways to set velocity, make them clear, and set constraints like range
     //TODO: add listeners and update list and table
@@ -339,7 +337,7 @@ public class Main extends Application {
         setupIntervalToggleGroup();// Setup RadioButtons for intervals
         setupSliders();
         setupCheckBoxAndCanvas();
-        setupVelocityComponents();
+        setupVelocityToggleGroup();
     }
 
     private void updateCanvas() {
@@ -643,7 +641,6 @@ public class Main extends Application {
             // Always refresh UI components to reflect the current job and note settings
             refreshJobListView(); // update list of jobs whenever job details change
             refreshNotesTableView(); // update table of notes whenever job details change
-            updateVelocityComponentsVisibility();
         });
 
         // Listener for singular velocity
