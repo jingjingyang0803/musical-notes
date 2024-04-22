@@ -43,8 +43,8 @@ public class Main extends Application {
     private GridPane jobEditPaneGrid = new GridPane();
     private TextField jobNameField = new TextField();
     private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long.");
-    private Spinner<Integer> fromNoteSpinner = new Spinner<>(0, 127, 0);
-    private Spinner<Integer> toNoteSpinner = new Spinner<>(0, 127, 0);
+    private Spinner<Integer> fromNoteSpinner = new Spinner<>(1, currentJob.getToNote() - 1, currentJob.getFromNote());
+    private Spinner<Integer> toNoteSpinner = new Spinner<>(currentJob.getFromNote() + 1, 127, currentJob.getToNote());
     private ToggleGroup internalGroup = new ToggleGroup();
     private HBox internalsHbox = new HBox(10);// Spacing of 10 pixels between each radio button
     // Labels for Sliders
@@ -69,9 +69,9 @@ public class Main extends Application {
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
     private Label singularVelocityLabel = new Label("80");
     private TextField specificVelocitiesField = new TextField();
-    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 80);
-    private Spinner<Integer> lastVelocitySpinner = new Spinner<>(1, 127, 90);
-    private Spinner<Integer> countSpinner = new Spinner<>(3, 127, 4);  // Example range for count
+    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 97, 40);
+    private Spinner<Integer> lastVelocitySpinner = new Spinner<>(firstVelocitySpinner.getValue()+1, 127, 100);
+    private Spinner<Integer> countSpinner = new Spinner<>(3, lastVelocitySpinner.getValue()-firstVelocitySpinner.getValue()+1, 4);  // range for count
 
     // Create TableView on right bottom
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
@@ -287,8 +287,6 @@ public class Main extends Application {
         jobEditPaneGrid.add(velocityTP, 0, 10, 2, 1);
     }
 
-    //TODO: add three ways to set velocity, make them clear, and set constraints like range
-    //TODO: add listeners and update list and table
     private void setupJobComponents() {
         jobEditPaneGrid.setAlignment(Pos.TOP_CENTER);  // Center align the GridPane
         jobEditPaneGrid.setHgap(10);  // Set horizontal gap between grid cells
@@ -536,21 +534,27 @@ public class Main extends Application {
         // Add a listener to the 'fromNoteSpinner' value property
         fromNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // update the minimum value of toNoteSpinner
-            toNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newValue + 1, 127, Math.max(toNoteSpinner.getValue(), newValue + 1)));
+            int newMin = newValue + 1;
+            toNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newMin, 127, Math.max(toNoteSpinner.getValue(), newMin)));
+
             // update job
             currentJob.setFromNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTableView();// update table of notes whenever job details change
+
         });
 
         // Add a listener to the 'toNoteSpinner' value property
         toNoteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             // update the maximum value of fromNoteSpinner
-            fromNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, newValue - 1, Math.min(fromNoteSpinner.getValue(), newValue - 1)));
+            int newMax = Math.max(0, newValue - 1);
+            fromNoteSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, newMax, Math.min(fromNoteSpinner.getValue(), newMax)));
+
             // update job
             currentJob.setToNote(newValue.intValue());
             refreshJobListView();// update list of jobs whenever job details change
             refreshNotesTableView();// update table of notes whenever job details change
+
         });
 
         // Add listeners to the sliders value property
@@ -636,62 +640,76 @@ public class Main extends Application {
         // Listener for singular velocity
         singularVelocitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             //            singularVelocityButton.isSelected()==true
-            currentJob.setVelocity(newVal.intValue());
-            singularVelocityLabel.setText(newVal.intValue()+"");
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
-        });
-
-        // Listener for specific velocities
-        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
-            //            specificVelocitiesButton.isSelected()==true
-            List<Integer> velocities = parseDistributedVelocities(newVal);
-            if (velocities != null) {
-                currentJob.setSpecificVelocities(velocities);
+            if (singularVelocityButton.isSelected()) {
+                currentJob.setVelocity(newVal.intValue());
+                singularVelocityLabel.setText(newVal.intValue() + "");
                 refreshJobListView();  // update list of jobs whenever job details change
                 refreshNotesTableView();// update table of notes whenever job details change
             }
         });
 
+        // Listener for specific velocities
+        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
+            //            specificVelocitiesButton.isSelected()==true
+            if (specificVelocitiesButton.isSelected()) {
+                List<Integer> velocities = parseDistributedVelocities(newVal);
+                if (velocities != null) {
+                    currentJob.setSpecificVelocities(velocities);
+                    refreshJobListView();  // update list of jobs whenever job details change
+                    refreshNotesTableView();// update table of notes whenever job details change
+                }
+            }
+        });
+
         // Listener for distributed velocities
         firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            //            distributedVelocitiesButton.isSelected()==true
-            if (newVal != null) {
-                lastVelocitySpinner.setDisable(newVal >= lastVelocitySpinner.getValue());
-            }
+            // update the minimum value of lastVelocitySpinner
+            // update the maximum value of lastVelocitySpinner
+            int newMax = Math.max(0, lastVelocitySpinner.getValue() - countSpinner.getValue() + 1);
+            firstVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, newMax, Math.min(firstVelocitySpinner.getValue(), newMax)));
 
-            currentJob.setDistributedVelocities(
-                    newVal,
-                    lastVelocitySpinner.getValue(),
-                    countSpinner.getValue()
-            );
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
+            //            distributedVelocitiesButton.isSelected()==true
+            if (distributedVelocitiesButton.isSelected()) {
+                currentJob.setDistributedVelocities(
+                        newVal,
+                        lastVelocitySpinner.getValue(),
+                        countSpinner.getValue()
+                );
+                refreshJobListView();  // update list of jobs whenever job details change
+                refreshNotesTableView();// update table of notes whenever job details change
+            }
         });
 
         lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             //            distributedVelocitiesButton.isSelected()==true
-            if (newVal != null) {
-                lastVelocitySpinner.setDisable(newVal <= firstVelocitySpinner.getValue());
-            }
+            // update the minimum value of lastVelocitySpinner
+            int newMin = firstVelocitySpinner.getValue() + countSpinner.getValue() - 1;
+            lastVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newMin, 127, Math.max(lastVelocitySpinner.getValue(), newMin)));
 
-            currentJob.setDistributedVelocities(
-                    firstVelocitySpinner.getValue(),
-                    newVal,
-                    countSpinner.getValue()
-            );
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
+            if (distributedVelocitiesButton.isSelected()) {
+                currentJob.setDistributedVelocities(
+                        firstVelocitySpinner.getValue(),
+                        newVal,
+                        countSpinner.getValue()
+                );
+                refreshJobListView();  // update list of jobs whenever job details change
+                refreshNotesTableView();// update table of notes whenever job details change
+            }
         });
 
         countSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            currentJob.setDistributedVelocities(
-                    firstVelocitySpinner.getValue(),
-                    lastVelocitySpinner.getValue(),
-                    newVal
-            );
-            refreshJobListView();  // update list of jobs whenever job details change
-            refreshNotesTableView();// update table of notes whenever job details change
+            int newMax = lastVelocitySpinner.getValue() - firstVelocitySpinner.getValue() + 1;
+            countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, newMax, Math.min(countSpinner.getValue(), newMax)));
+
+            if (distributedVelocitiesButton.isSelected()) {
+                currentJob.setDistributedVelocities(
+                        firstVelocitySpinner.getValue(),
+                        lastVelocitySpinner.getValue(),
+                        newVal
+                );
+                refreshJobListView();  // update list of jobs whenever job details change
+                refreshNotesTableView();// update table of notes whenever job details change
+            }
         });
     }
 
