@@ -69,9 +69,9 @@ public class Main extends Application {
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
     private Label singularVelocityLabel = new Label("80");
     private TextField specificVelocitiesField = new TextField();
-    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 97, 40);
+    private Spinner<Integer> firstVelocitySpinner = new Spinner<>(1, 127, 40);
     private Spinner<Integer> lastVelocitySpinner = new Spinner<>(firstVelocitySpinner.getValue()+1, 127, 100);
-    private Spinner<Integer> countSpinner = new Spinner<>(3, lastVelocitySpinner.getValue()-firstVelocitySpinner.getValue()+1, 4);  // range for count
+    private Spinner<Integer> countSpinner = new Spinner<>(0, lastVelocitySpinner.getValue()-firstVelocitySpinner.getValue()+1, 4);  // range for count
 
     // Create TableView on right bottom
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
@@ -664,9 +664,12 @@ public class Main extends Application {
         // Listener for distributed velocities
         firstVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             // update the minimum value of lastVelocitySpinner
-            // update the maximum value of lastVelocitySpinner
-            int newMax = Math.max(0, lastVelocitySpinner.getValue() - countSpinner.getValue() + 1);
-            firstVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, newMax, Math.min(firstVelocitySpinner.getValue(), newMax)));
+            int newMin = newVal + 1;
+            lastVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newMin, 127, Math.max(lastVelocitySpinner.getValue(), newMin)));
+
+            // update the maximum value of countSpinner
+            int newMax = Math.max(0, lastVelocitySpinner.getValue() - newVal + 1);
+            countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, newMax, Math.min(countSpinner.getValue(), newMax)));
 
             //            distributedVelocitiesButton.isSelected()==true
             if (distributedVelocitiesButton.isSelected()) {
@@ -681,11 +684,15 @@ public class Main extends Application {
         });
 
         lastVelocitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            //            distributedVelocitiesButton.isSelected()==true
-            // update the minimum value of lastVelocitySpinner
-            int newMin = firstVelocitySpinner.getValue() + countSpinner.getValue() - 1;
-            lastVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(newMin, 127, Math.max(lastVelocitySpinner.getValue(), newMin)));
+            // update the maximum value of lastVelocitySpinner
+            int newMax = Math.max(0, newVal - 1);
+            firstVelocitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, newMax, Math.min(firstVelocitySpinner.getValue(), newMax)));
 
+            // update the maximum value of countSpinner
+            int newCountMax = Math.max(0, newVal - firstVelocitySpinner.getValue() + 1);
+            countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, newCountMax, Math.min(countSpinner.getValue(), newCountMax)));
+
+            //            distributedVelocitiesButton.isSelected()==true
             if (distributedVelocitiesButton.isSelected()) {
                 currentJob.setDistributedVelocities(
                         firstVelocitySpinner.getValue(),
@@ -698,9 +705,6 @@ public class Main extends Application {
         });
 
         countSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            int newMax = lastVelocitySpinner.getValue() - firstVelocitySpinner.getValue() + 1;
-            countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, newMax, Math.min(countSpinner.getValue(), newMax)));
-
             if (distributedVelocitiesButton.isSelected()) {
                 currentJob.setDistributedVelocities(
                         firstVelocitySpinner.getValue(),
