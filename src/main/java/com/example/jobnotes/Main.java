@@ -77,21 +77,23 @@ public class Main extends Application {
     private ObservableList<Note> noteList = FXCollections.observableArrayList();
     private TableView<Note> noteTable;
 
-    //TODO: rename var/methods like job editing view, ...
-    //TODO: add inline comments
     @Override
     public void start(Stage primaryStage) {
         //
         // Customize Job List
         //
         Job job1 = new Job("Job one");
+        job1.setFromNote(80);
+        job1.setToNote(100);
         job1.setVelocity(85);
 
         Job job2 = new Job("Job two");
+        job2.setNoteDuration(3500);
         List<Integer> vs = Arrays.asList(60, 60, 100);
         job2.setSpecificVelocities(vs);
 
         Job job3 = new Job("Job three");
+        job3.setNoteGap(300);
         job3.setDistributedVelocities(50, 90, 4);
 
         // Create a list of jobs
@@ -120,8 +122,7 @@ public class Main extends Application {
 //        setupStageLeftRight(primaryStage);// Final stage setup option 2: left, top right, bottom right
     }
 
-    //TODO: from note must smaller then to note, first v must smaller then last v, add updatevvisiablity or add button selected check
-    private ListView<Job> getJobListView() {
+   private ListView<Job> getJobListView() {
         // Create a ListView for left section using a list of Jobs
         jobsListView = new ListView<>(jobs);
 
