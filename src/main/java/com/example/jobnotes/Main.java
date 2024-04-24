@@ -518,17 +518,28 @@ public class Main extends Application {
     }
 
     private void setupListeners() {
-        // Add a listener to the 'jobNameField' text property
-        jobNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // text changes
-            String newName = jobNameField.getText().trim();  // Trim leading and trailing whitespaces
 
-            // Check if job name is not empty and not exceeding 20 characters
+        // Add an onAction event from the text field (which triggers when Enter is pressed)
+        jobNameField.setOnAction(event -> {
+            String newName = jobNameField.getText().trim();
             if (newName.length() > 0 && newName.length() <= 20) {
-                currentJob.setName(newName);  // Set the new job name
-                refreshJobListView();// update list of jobs whenever job details change
+                currentJob.setName(newName);
+                refreshJobListView();
             } else {
-                System.out.println("Invalid Job Name. It should be 1-20 characters long.");  // Print error if invalid
+                System.out.println("Invalid Job Name. It should be 1-20 characters long.");
+            }
+        });
+
+        // Add a listener to the 'jobNameField' focused property (which triggers when Tab key is pressed)
+        jobNameField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // focus lost
+                String newName = jobNameField.getText().trim();
+                if (newName.length() > 0 && newName.length() <= 20) {
+                    currentJob.setName(newName);
+                    refreshJobListView();
+                } else {
+                    System.out.println("Invalid Job Name. It should be 1-20 characters long.");
+                }
             }
         });
 
@@ -649,15 +660,28 @@ public class Main extends Application {
             }
         });
 
-        // Listener for specific velocities
-        specificVelocitiesField.textProperty().addListener((obs, oldVal, newVal) -> {
-            //            specificVelocitiesButton.isSelected()==true
+        // Add an onAction event from the specific velocities field (which triggers when Enter is pressed)
+        specificVelocitiesField.setOnAction(event -> {
             if (specificVelocitiesButton.isSelected()) {
-                List<Integer> velocities = parseDistributedVelocities(newVal);
-                if (velocities != null) {
+                String text = specificVelocitiesField.getText().trim();
+                List<Integer> velocities = parseDistributedVelocities(text);
+                if (velocities != null && !velocities.isEmpty()) {
                     currentJob.setSpecificVelocities(velocities);
                     refreshJobListView();  // update list of jobs whenever job details change
-                    refreshNotesTableView();// update table of notes whenever job details change
+                    refreshNotesTableView(); // update table of notes whenever job details change
+                }
+            }
+        });
+
+        // Listener for focus lost event on specific velocities field (which triggers when Tab key is pressed)
+        specificVelocitiesField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && specificVelocitiesButton.isSelected()) { // Focus is lost and specific velocities button is selected
+                String text = specificVelocitiesField.getText();
+                List<Integer> velocities = parseDistributedVelocities(text);
+                if (velocities != null && !velocities.isEmpty()) {
+                    currentJob.setSpecificVelocities(velocities);
+                    refreshJobListView();  // update list of jobs whenever job details change
+                    refreshNotesTableView(); // update table of notes whenever job details change
                 }
             }
         });
