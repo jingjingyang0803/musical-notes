@@ -41,6 +41,7 @@ public class Main extends Application {
     private ListView<Job> jobsListView;
 
     // Create GridPane and its components on right top
+    private ScrollPane jobEditScrollPane = new ScrollPane();
     private GridPane jobEditPaneGrid = new GridPane();
     private TextField jobNameField = new TextField();
     private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long. \nPress Enter/Tab to save changes.");
@@ -330,6 +331,10 @@ public class Main extends Application {
         setupSliders();
         setupCheckBoxAndCanvas();
         setupVelocityToggleGroup();
+
+        jobEditScrollPane.setContent(jobEditPaneGrid);
+        jobEditScrollPane.setFitToWidth(true);  // Ensures the grid expands to fill the scroll pane width
+        jobEditScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);  // Vertical scroll bar
     }
 
     private void updateCanvas() {
@@ -774,7 +779,7 @@ public class Main extends Application {
         // Create a SplitPane for right section
         SplitPane rightSection = new SplitPane();
         rightSection.setOrientation(Orientation.VERTICAL);
-        rightSection.getItems().addAll(jobEditPaneGrid, noteTable);
+        rightSection.getItems().addAll(jobEditScrollPane, noteTable);
 
         //
         // Whole SplitPane
@@ -803,7 +808,7 @@ public class Main extends Application {
         // Create a SplitPane for the bottom section
         SplitPane bottomSection = new SplitPane();
         // Add left section and right section to the SplitPane
-        bottomSection.getItems().addAll(jobEditPaneGrid, noteTable);
+        bottomSection.getItems().addAll(jobEditScrollPane, noteTable);
         bottomSection.setDividerPositions(0.6);// adjust the size of each section to proper
         //
         // Whole SplitPane
