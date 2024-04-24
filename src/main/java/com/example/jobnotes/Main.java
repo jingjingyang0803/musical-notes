@@ -64,6 +64,7 @@ public class Main extends Application {
     private ToggleGroup velocityGroup = new ToggleGroup();
     private RadioButton singularVelocityButton = new RadioButton("Singular Velocity");
     private RadioButton specificVelocitiesButton = new RadioButton("Specific Velocities");
+    private Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
     private RadioButton distributedVelocitiesButton = new RadioButton("Distributed Velocities");
     // Velocity control Components
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
@@ -249,8 +250,6 @@ public class Main extends Application {
         velocityGrid.add(singularVelocityButton, 0, 0);
         velocityGrid.add(singularVelocitySlider, 1, 0);
         velocityGrid.add(singularVelocityLabel, 1, 1);
-
-        Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
 
         // Specific Velocities Components
         velocityGrid.add(specificVelocitiesButton, 0, 2);
@@ -525,8 +524,9 @@ public class Main extends Application {
             if (newName.length() > 0 && newName.length() <= 20) {
                 currentJob.setName(newName);
                 refreshJobListView();
+                jobNameWarningLabel.setText("Job name has been updated.");
             } else {
-                System.out.println("Invalid Job Name. It should be 1-20 characters long.");
+                jobNameWarningLabel.setText("Invalid Job Name. It should be 1-20 characters long.");
             }
         });
 
@@ -537,8 +537,9 @@ public class Main extends Application {
                 if (newName.length() > 0 && newName.length() <= 20) {
                     currentJob.setName(newName);
                     refreshJobListView();
+                    jobNameWarningLabel.setText("Job name has been updated.");
                 } else {
-                    System.out.println("Invalid Job Name. It should be 1-20 characters long.");
+                    jobNameWarningLabel.setText("Invalid Job Name. It should be 1-20 characters long.");
                 }
             }
         });
@@ -669,6 +670,9 @@ public class Main extends Application {
                     currentJob.setSpecificVelocities(velocities);
                     refreshJobListView();  // update list of jobs whenever job details change
                     refreshNotesTableView(); // update table of notes whenever job details change
+                    specificVelocitiesWarningLabel.setText("Velocities have been updated.");
+                } else {
+                    specificVelocitiesWarningLabel.setText("Invalid input. Please enter comma-separated numbers within 1-127.");
                 }
             }
         });
@@ -682,6 +686,9 @@ public class Main extends Application {
                     currentJob.setSpecificVelocities(velocities);
                     refreshJobListView();  // update list of jobs whenever job details change
                     refreshNotesTableView(); // update table of notes whenever job details change
+                    specificVelocitiesWarningLabel.setText("Velocities have been updated.");
+                } else {
+                    specificVelocitiesWarningLabel.setText("Invalid input. Please enter comma-separated numbers within 1-127.");
                 }
             }
         });
