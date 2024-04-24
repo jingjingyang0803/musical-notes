@@ -21,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -42,7 +43,7 @@ public class Main extends Application {
     // Create GridPane and its components on right top
     private GridPane jobEditPaneGrid = new GridPane();
     private TextField jobNameField = new TextField();
-    private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long.");
+    private Label jobNameWarningLabel = new Label("Job name should be 1-20 characters long. \nPress Enter/Tab to save changes.");
     private Spinner<Integer> fromNoteSpinner = new Spinner<>(1, currentJob.getToNote() - 1, currentJob.getFromNote());
     private Spinner<Integer> toNoteSpinner = new Spinner<>(currentJob.getFromNote() + 1, 127, currentJob.getToNote());
     private ToggleGroup internalGroup = new ToggleGroup();
@@ -64,7 +65,7 @@ public class Main extends Application {
     private ToggleGroup velocityGroup = new ToggleGroup();
     private RadioButton singularVelocityButton = new RadioButton("Singular Velocity");
     private RadioButton specificVelocitiesButton = new RadioButton("Specific Velocities");
-    private Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127.");
+    private Label specificVelocitiesWarningLabel = new Label("Please enter comma-separated numbers within 1-127. \nPress Enter/Tab to save changes.");
     private RadioButton distributedVelocitiesButton = new RadioButton("Distributed Velocities");
     // Velocity control Components
     private Slider singularVelocitySlider = new Slider(1, 127, 80);
@@ -255,6 +256,8 @@ public class Main extends Application {
         velocityGrid.add(specificVelocitiesButton, 0, 2);
         velocityGrid.add(specificVelocitiesField, 1, 2);
         velocityGrid.add(specificVelocitiesWarningLabel, 1, 3);
+        specificVelocitiesWarningLabel.setWrapText(true);  // Enable text wrapping within the label
+        specificVelocitiesWarningLabel.setMinHeight(Control.USE_PREF_SIZE);  // Set minimum height to use preferred size
 
         Label firstVelocityLabel = new Label("First Velocity:");
         Label lastVelocityLabel = new Label("Last Velocity:");
@@ -310,6 +313,9 @@ public class Main extends Application {
         Label toNoteLabel = new Label("To Note:");  // Label for the to note spinner
         jobEditPaneGrid.add(jobNameLabel, 0, 1);
         jobEditPaneGrid.add(jobNameWarningLabel, 1, 2, 2, 1);
+        jobNameWarningLabel.setWrapText(true);  // Enable text wrapping within the label
+        jobNameWarningLabel.setMinHeight(Control.USE_PREF_SIZE);  // Set minimum height to use preferred size
+
         jobEditPaneGrid.add(fromNoteLabel, 0, 3);
         jobEditPaneGrid.add(toNoteLabel, 0, 4);
 
